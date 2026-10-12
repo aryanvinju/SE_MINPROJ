@@ -111,6 +111,8 @@ The GitHub Actions `publish` job targets [aryanvinju/se_miniproj](https://hub.do
 
 The [main-branch publish run](https://github.com/aryanvinju/SE_MINPROJ/actions/runs/38201577529) succeeded on 12 October 2026. It pushed `aryanvinju/se_miniproj:0cf74d38d7729b70ff8a66c9588400286f6d0aea` and `:latest`, both with digest `sha256:ecbd5049e833911c3db2b09d0395d207a32797b2ef87b8235e233af3373d0e87`. The published image still needs local model and report artifacts mounted at runtime; it does not contain row-level survey data or encoded training states.
 
+The [simplified UI release run](https://github.com/aryanvinju/SE_MINPROJ/actions/runs/38203322240) also passed and pushed `aryanvinju/se_miniproj:b465cb7535d3a544f649d29cea827ed1fae26933` and the updated `:latest` tag with digest `sha256:5d299e742b84031632955994dfa2894e3282e3394b8c13f33d73945321199b95`.
+
 ## Kubernetes deployment
 
 The namespace `lung-lab` isolates this demonstration. The manifest defines two replicas, a ClusterIP Service, startup/readiness/liveness probes, resource limits, a non-root container and read-only Secret mounts for model/report artifacts. Use this only in a local lab cluster; the reports include dataset row identifiers. The manifest pins the successfully published Docker Hub SHA tag. Docker Desktop's `docker-desktop` context was used for the verified deployment.
@@ -171,9 +173,9 @@ The `.github/workflows/ci.yml` workflow runs the public, data-free Python checks
 |---|---|---|
 | Git | Versioned source and local commits | `git log` in this workspace |
 | GitHub | Source branch and review PR | [TriadLens PR #1](https://github.com/aryanvinju/SE_MINPROJ/pull/1) |
-| GitHub Actions | Python/JavaScript checks, image build and main-branch publish | [Successful main run](https://github.com/aryanvinju/SE_MINPROJ/actions/runs/38201577529) |
+| GitHub Actions | Python/JavaScript checks, image build and main-branch publish | [Simplified UI release run](https://github.com/aryanvinju/SE_MINPROJ/actions/runs/38203322240) |
 | Docker | Reproducible source-only Gunicorn image | Published image pulled; exclusions inspected; mounted-model run passed |
-| Docker Hub | Image registry for `aryanvinju/se_miniproj` | SHA and latest tags pushed in the main run; digest `sha256:ecbd5049e833911c3db2b09d0395d207a32797b2ef87b8235e233af3373d0e87` |
+| Docker Hub | Image registry for `aryanvinju/se_miniproj` | Simplified UI SHA and latest tags pushed; digest `sha256:5d299e742b84031632955994dfa2894e3282e3394b8c13f33d73945321199b95` |
 | Kubernetes | Two replicas, Service, health probes and artifact Secret mounts | Docker Desktop rollout, Service prediction, scale and Pod replacement passed |
 
 ## Primary references

@@ -28,7 +28,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: web
-          image: aryanvinju/se_miniproj:0cf74d38d7729b70ff8a66c9588400286f6d0aea
+          image: aryanvinju/se_miniproj:b465cb7535d3a544f649d29cea827ed1fae26933
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5000
