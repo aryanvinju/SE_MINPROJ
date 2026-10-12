@@ -155,6 +155,7 @@ Troubleshooting: `ImagePullBackOff` usually means the image is absent from the c
 
 ## Files to submit
 
+- `docs/Product_Backlog_and_Two_Sprints.md`: linked GitHub product backlog, two sprint backlogs, story points, demo scripts and the dated status/deviations log.
 - `docs/SRS.md`: requirements specification, use case diagram, security requirements and acceptance criteria.
 - `docs/System_Test_Plan.md`: test cases, traceability, actual evidence and pending deployment checks.
 - `docs/Architecture_Design.md`: component and sequence diagrams, API and security design.
