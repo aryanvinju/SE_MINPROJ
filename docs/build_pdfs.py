@@ -16,9 +16,9 @@ from reportlab.platypus import (Flowable, Paragraph, SimpleDocTemplate, Spacer,
 HERE = Path(__file__).parent
 OUT = HERE / "pdf"
 OUT.mkdir(exist_ok=True)
-NAVY = colors.HexColor("#173c55")
-TEAL = colors.HexColor("#087e80")
-PALE = colors.HexColor("#eaf2f4")
+NAVY = colors.black
+TEAL = colors.black
+PALE = colors.white
 
 styles = getSampleStyleSheet()
 styles.add(ParagraphStyle(name="DocTitleX", parent=styles["Title"], fontName="Helvetica-Bold", fontSize=17, leading=22, textColor=NAVY, spaceAfter=16))
@@ -26,14 +26,14 @@ styles.add(ParagraphStyle(name="H1X", parent=styles["Heading1"], fontSize=12, le
 styles.add(ParagraphStyle(name="H2X", parent=styles["Heading2"], fontSize=10, leading=14, textColor=TEAL, spaceBefore=12, spaceAfter=5))
 styles.add(ParagraphStyle(name="BodyX", parent=styles["BodyText"], fontSize=8.6, leading=12.5, spaceAfter=7))
 styles.add(ParagraphStyle(name="CellX", parent=styles["BodyText"], fontSize=7.3, leading=10))
-styles.add(ParagraphStyle(name="HeaderCellX", parent=styles["BodyText"], fontName="Helvetica-Bold", fontSize=7.3, leading=10, textColor=colors.white))
+styles.add(ParagraphStyle(name="HeaderCellX", parent=styles["BodyText"], fontName="Helvetica-Bold", fontSize=7.3, leading=10, textColor=colors.black))
 styles.add(ParagraphStyle(name="DiagramTextX", parent=styles["BodyText"], alignment=TA_CENTER, fontSize=8))
 
 
 def markup(text):
     value = html.escape(text.replace("·", " - ").replace("≤", "&lt;=").replace("≥", "&gt;=").replace("→", " to ").replace("–", "-").replace("—", "-"))
     value = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", value)
-    value = re.sub(r"`([^`]+)`", r"<font color='#08666a'>\1</font>", value)
+    value = re.sub(r"`([^`]+)`", r"<font name='Courier'>\1</font>", value)
     return value
 
 
@@ -88,7 +88,7 @@ def diagram(kind):
         for x,n in zip(xs,names):
             d.add(Rect(x-37,150,74,22,strokeColor=NAVY,fillColor=PALE))
             label(d,x,158,n,8)
-            d.add(Line(x,20,x,150,strokeColor=colors.grey,strokeWidth=.7,strokeDashArray=[3,3]))
+            d.add(Line(x,20,x,150,strokeColor=colors.black,strokeWidth=.7,strokeDashArray=[3,3]))
         messages=([("Enter features",0,1),("POST /api/predict",1,2),("Validate input",2,2),("Run ML, DL, QML",2,3),("Results + audit",2,1)] if not training else
                   [("Run training",0,1),("Clean and split",1,1),("Fit three models",1,2),("Evaluate test set",2,1),("Save evidence",1,3)])
         for i,(t,a,b) in enumerate(messages):
@@ -98,23 +98,19 @@ def diagram(kind):
     return d
 
 
-def footer(canvas, doc):
-    canvas.saveState()
-    canvas.setStrokeColor(colors.HexColor("#d7e2e7"))
-    canvas.line(42,37,553,37)
-    canvas.setFont("Helvetica",7.5)
-    canvas.setFillColor(colors.HexColor("#58707b"))
-    canvas.drawString(42,25,"TriadLens | 9 October 2026")
-    canvas.drawRightString(553,25,f"Page {doc.page}")
-    canvas.restoreState()
-
-
 def parse(path):
     lines=path.read_text(encoding="utf-8").splitlines()
+    if len(lines) > 1 and lines[0].startswith("# ") and lines[1].startswith("# "):
+        lines = lines[1:]
+    placeholder_prefixes = (
+        "Student: project team",
+        "Tester: project team",
+        "Class, section and instructor: complete on the private submission copy",
+        "Instructor review: pending",
+    )
+    lines = [line for line in lines if not line.startswith(placeholder_prefixes)]
     story=[]
     private_meta=HERE.parent / ".private_submission.txt"
-    if private_meta.exists():
-        story.append(Paragraph(markup(private_meta.read_text(encoding="utf-8").strip()),styles["BodyX"]))
     i=0
     mermaid_number=0
     while i<len(lines):
@@ -149,11 +145,14 @@ def parse(path):
             if rows:
                 width=511/len(rows[0])
                 table=Table([[Paragraph(markup(c),styles["HeaderCellX"] if n==0 else styles["CellX"]) for c in row] for n,row in enumerate(rows)],colWidths=[width]*len(rows[0]),repeatRows=1,hAlign="LEFT")
-                table.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,0),NAVY),("ROWBACKGROUNDS",(0,1),(-1,-1),[colors.white,PALE]),("VALIGN",(0,0),(-1,-1),"TOP"),("GRID",(0,0),(-1,-1),.35,colors.HexColor("#b7cbd3")),("LEFTPADDING",(0,0),(-1,-1),5),("RIGHTPADDING",(0,0),(-1,-1),5),("TOPPADDING",(0,0),(-1,-1),5),("BOTTOMPADDING",(0,0),(-1,-1),5)]))
+                table.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,-1),colors.white),("VALIGN",(0,0),(-1,-1),"TOP"),("GRID",(0,0),(-1,-1),.35,colors.black),("LEFTPADDING",(0,0),(-1,-1),5),("RIGHTPADDING",(0,0),(-1,-1),5),("TOPPADDING",(0,0),(-1,-1),5),("BOTTOMPADDING",(0,0),(-1,-1),5)]))
                 story.extend([Spacer(1,5),table,Spacer(1,8)])
             continue
         if line.startswith("# "):
             story.append(Paragraph(markup(line[2:]),styles["DocTitleX"]))
+            if private_meta.exists():
+                identity = private_meta.read_text(encoding="utf-8").strip().replace("Private submission copy | ", "")
+                story.append(Paragraph(markup(identity), styles["BodyX"]))
         elif line.startswith("## "):
             story.append(Paragraph(markup(line[3:]),styles["H1X"]))
         elif line.startswith("### "):
@@ -169,6 +168,7 @@ def parse(path):
 
 for source in [HERE/"SRS.md", HERE/"System_Test_Plan.md", HERE/"Architecture_Design.md"]:
     target=OUT/source.with_suffix(".pdf").name
-    doc=SimpleDocTemplate(str(target),pagesize=(595.28,841.89),leftMargin=42,rightMargin=42,topMargin=44,bottomMargin=49,title=source.stem,author="Aryan Vinju")
-    doc.build(parse(source),onFirstPage=footer,onLaterPages=footer)
+    doc=SimpleDocTemplate(str(target),pagesize=(595.28,841.89),leftMargin=42,rightMargin=42,topMargin=42,bottomMargin=42,title=source.stem,author="Aryan Vinju")
+    doc.build(parse(source))
     print(target)
+
