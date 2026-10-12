@@ -12,7 +12,7 @@ Open a terminal in this folder and run:
 python app.py
 ```
 
-Open **http://127.0.0.1:5000**, click **Load dataset example**, then **Run comparison**. Trained models are included in the local submission bundle. A clean public-repository checkout needs the dataset added and `python train.py` run first. You can also double-click `run_lab.cmd`. If port 5000 is already in use by the running preview, open the existing URL or set `$env:PORT='5001'` before starting.
+Open **http://127.0.0.1:5000**, click **Load example**, then **Run comparison**. Trained models are included in the local submission bundle. A clean public-repository checkout needs the dataset added and `python train.py` run first. You can also double-click `run_lab.cmd`. If port 5000 is already in use by the running preview, open the existing URL or set `$env:PORT='5001'` before starting.
 
 With all three models selected, the result includes an agreement audit: per-model labels, a descriptive majority dataset label and a review flag when labels disagree or age lies outside the training range. A single-model request has no comparison audit. Agreement is not a clinical vote.
 
@@ -103,7 +103,7 @@ $reportDir = (Resolve-Path .\reports).Path
 docker run --rm -p 5001:5000 --mount "type=bind,source=$modelDir,target=/app/models,readonly" --mount "type=bind,source=$reportDir,target=/app/reports,readonly" lung-cancer-lab:1.0
 ```
 
-Open http://127.0.0.1:5001. The container loads the mounted model files. The build requires internet access for dependencies. GitHub Actions has built the source-only image; the mounted-model container run has not been verified in this environment.
+Open http://127.0.0.1:5001. The container loads the mounted model files. The build requires internet access for dependencies. The published SHA-tagged image was pulled and verified with mounted models on 12 October 2026.
 
 ## Docker Hub publication
 
@@ -111,17 +111,15 @@ The GitHub Actions `publish` job targets [aryanvinju/se_miniproj](https://hub.do
 
 The [main-branch publish run](https://github.com/aryanvinju/SE_MINPROJ/actions/runs/38201577529) succeeded on 12 October 2026. It pushed `aryanvinju/se_miniproj:0cf74d38d7729b70ff8a66c9588400286f6d0aea` and `:latest`, both with digest `sha256:ecbd5049e833911c3db2b09d0395d207a32797b2ef87b8235e233af3373d0e87`. The published image still needs local model and report artifacts mounted at runtime; it does not contain row-level survey data or encoded training states.
 
-## Kubernetes with Minikube
+## Kubernetes deployment
 
-The namespace `lung-lab` isolates this demonstration. The manifest defines two replicas, a ClusterIP Service, startup/readiness/liveness probes, resource limits, a non-root container and read-only Secret mounts for model/report artifacts. Use this only in a local lab cluster; the reports include dataset row identifiers.
+The namespace `lung-lab` isolates this demonstration. The manifest defines two replicas, a ClusterIP Service, startup/readiness/liveness probes, resource limits, a non-root container and read-only Secret mounts for model/report artifacts. Use this only in a local lab cluster; the reports include dataset row identifiers. The manifest pins the successfully published Docker Hub SHA tag. Docker Desktop's `docker-desktop` context was used for the verified deployment.
 
 ```powershell
 minikube start --driver=docker
 kubectl create namespace lung-lab --dry-run=client -o yaml | kubectl apply -f -
 kubectl create secret generic triadlens-models --from-file=models/scaler.joblib --from-file=models/ml.joblib --from-file=models/qml.joblib --from-file=models/dl.pt -n lung-lab --dry-run=client -o yaml | kubectl apply -f -
 kubectl create secret generic triadlens-reports --from-file=reports/metrics.json --from-file=reports/example_request.json -n lung-lab --dry-run=client -o yaml | kubectl apply -f -
-docker build -t lung-cancer-lab:1.0 .
-minikube image load lung-cancer-lab:1.0
 kubectl apply -f k8s/lung-lab.yaml
 kubectl rollout status deployment/lung-lab -n lung-lab --timeout=180s
 kubectl get pods,svc -n lung-lab
@@ -141,7 +139,7 @@ kubectl scale deployment/lung-lab --replicas=2 -n lung-lab
 
 For a self-healing demonstration, delete **one pod belonging to this lab** using its exact name from `kubectl get pods -n lung-lab`; show that the Deployment creates a replacement. Restart port-forward if its selected pod was deleted. Do not delete unrelated pods. To remove this lab's resources when finished, use `kubectl delete -f k8s/lung-lab.yaml`.
 
-To use the published Docker Hub image, create the same namespace and Secrets on the selected local cluster, apply the manifest, then run `kubectl set image deployment/lung-lab web=aryanvinju/se_miniproj:0cf74d38d7729b70ff8a66c9588400286f6d0aea -n lung-lab` before checking rollout. If using Docker Desktop's Kubernetes, enable it and select its context; skip Minikube commands. Avoid using a public cluster with the supplied detailed reports.
+For Docker Desktop Kubernetes, enable its cluster and select the `docker-desktop` context. Create the namespace and two Secrets using the commands above, then apply `k8s/lung-lab.yaml` and check rollout; skip `minikube start`. The manifest already points to the published SHA tag. Avoid using a public cluster with the supplied detailed reports.
 
 Troubleshooting: `ImagePullBackOff` usually means the image is absent from the cluster; `CrashLoopBackOff` requires reading `kubectl logs deployment/lung-lab -n lung-lab`; an unset context means a cluster has not been selected. Do not claim deployment success until rollout and HTTP requests succeed.
 
@@ -149,8 +147,8 @@ Troubleshooting: `ImagePullBackOff` usually means the image is absent from the c
 
 - **57 automated tests passed locally**, including four data-free public CI checks, model disagreement rules, API predictions on all 55 held-out records, malformed-input handling, missing-model readiness, split integrity, known quantum gate behavior, and kernel properties.
 - A live HTTP request to the local app and a three-model prediction succeeded.
-- JavaScript passed Node's syntax check. Browser interaction, responsive layout and accessibility tests are listed as pending manual checks.
-- GitHub Actions passed the public checks, built the source-only Docker image and published its SHA and latest tags to Docker Hub. A mounted-model Docker run and live Kubernetes deployment remain unverified while the local Docker daemon and Kubernetes context are unavailable to this session.
+- JavaScript passed Node's syntax check. Browser example, model selection and required-input checks passed; keyboard focus and 375 px layout passed. The 200 percent zoom check remains open.
+- GitHub Actions passed the public checks, built the source-only Docker image and published its SHA and latest tags to Docker Hub. The pulled image excludes the private survey CSV and model files. A mounted-model Docker run returned ready and all three model results. Docker Desktop Kubernetes ran two ready Pods and passed Service prediction, scaling and Pod replacement checks. See [DevOps verification](docs/DevOps_Verification.md).
 - Optional WebMCP registration is feature-detected. No compatible browser validation context was available; it is not part of the verified lab acceptance criteria.
 
 ## Files to submit
@@ -174,9 +172,9 @@ The `.github/workflows/ci.yml` workflow runs the public, data-free Python checks
 | Git | Versioned source and local commits | `git log` in this workspace |
 | GitHub | Source branch and review PR | [TriadLens PR #1](https://github.com/aryanvinju/SE_MINPROJ/pull/1) |
 | GitHub Actions | Python/JavaScript checks, image build and main-branch publish | [Successful main run](https://github.com/aryanvinju/SE_MINPROJ/actions/runs/38201577529) |
-| Docker | Reproducible source-only Gunicorn image | Dockerfile and CI image build; mounted-model run pending |
+| Docker | Reproducible source-only Gunicorn image | Published image pulled; exclusions inspected; mounted-model run passed |
 | Docker Hub | Image registry for `aryanvinju/se_miniproj` | SHA and latest tags pushed in the main run; digest `sha256:ecbd5049e833911c3db2b09d0395d207a32797b2ef87b8235e233af3373d0e87` |
-| Kubernetes | Two replicas, Service, health probes and artifact Secret mounts | Manifest validated; live rollout pending |
+| Kubernetes | Two replicas, Service, health probes and artifact Secret mounts | Docker Desktop rollout, Service prediction, scale and Pod replacement passed |
 
 ## Primary references
 

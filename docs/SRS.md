@@ -80,7 +80,7 @@ UC-01 load example; UC-02 enter features; UC-03 compare models, including valida
 | NFR01 | Local API outputs shall match offline held-out predictions for all three models. | ST04 checks all 55 test records |
 | NFR02 | Invalid requests shall not expose stack traces; requests above 16 KiB shall be rejected. | ST05–ST08 |
 | NFR03 | Survey submissions shall not be written to application storage. Response caching shall be disabled. | Source inspection and ST14 |
-| NFR04 | The interface shall remain usable at 375 px width, with keyboard input and visible focus. | Manual ST17 pending |
+| NFR04 | The interface shall remain usable at 375 px width, with keyboard input and visible focus. | ST17 keyboard and 375 px checks passed; 200 percent zoom remains open |
 | NFR05 | Repeated identical inputs shall produce the same label and score within the running process. | ST15 |
 | NFR06 | A missing model artifact shall make readiness fail while liveness remains available. | ST08 |
 | NFR07 | Container configuration shall run as a non-root user with bounded resources. | Manifest inspection; live ST18 pending |

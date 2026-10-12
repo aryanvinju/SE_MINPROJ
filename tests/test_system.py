@@ -22,7 +22,8 @@ def payload():
 def test_ST01_frontend_and_assets(client):
     page = client.get('/')
     assert page.status_code == 200
-    assert b'One dataset.' in page.data
+    assert b'TriadLens' in page.data
+    assert b'Survey inputs' in page.data
     for path in ['/static/app.js', '/static/style.css']:
         assert client.get(path).status_code == 200
 

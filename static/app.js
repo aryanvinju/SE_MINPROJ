@@ -44,7 +44,7 @@ form.addEventListener('submit', async (event) => {
     for(const key of Object.keys(fields)) if(key!=='GENDER') fields[key]=Number(fields[key]);
     displayResults(await runPrediction(model,fields));
   } catch(error) {showError(error.message); document.querySelector('#results').replaceChildren(paragraph('empty','Prediction unavailable. Check the error beside the form.'));}
-  finally {button.disabled=false;button.textContent='Run comparison ↗';}
+  finally {button.disabled=false;button.textContent='Run comparison';}
 });
 document.querySelector('#example').addEventListener('click', async()=>{
   errorBox.hidden=true;
@@ -52,7 +52,7 @@ document.querySelector('#example').addEventListener('click', async()=>{
   catch(error){showError(error.message);}
 });
 async function initialize(){
-  try {await readJSON('/health/ready');document.querySelector('#health').textContent='● All models ready';}
+  try {await readJSON('/health/ready');document.querySelector('#health').textContent='Models ready';}
   catch {document.querySelector('#health').textContent='Models unavailable';}
   try {
     const data=await readJSON('/api/metrics');
