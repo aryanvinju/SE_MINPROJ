@@ -40,7 +40,7 @@ The dependency versions match the environment used to train the included models.
 6. Show the held-out evaluation table and explain why the majority-class baseline matters.
 7. Run `python -m pytest -q` and show the passing tests.
 8. Follow the Kubernetes steps below on a working local cluster, then capture the real pod and service output.
-9. Submit the SRS, System Test Plan, evaluation evidence, and project code. Add your name, USN, class and teacher details to the documents.
+9. Submit the SRS, System Test Plan, evaluation evidence, and project code. The private submission PDFs include the four team members and their student IDs; add class and instructor details if required.
 
 ## Models and data preparation
 

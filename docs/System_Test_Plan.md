@@ -3,7 +3,7 @@
 
 Version 2.1 | 12 October 2026
 
-Student: project team
+Project team: Aryan Vinju, Aditya Shetty, Avantika Jitesh, Apeksha Ashok. Student identifiers are in the private submission PDFs.
 Tester: project team
 Instructor review: pending
 

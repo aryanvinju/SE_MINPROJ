@@ -1,5 +1,7 @@
 # TriadLens: genuine contribution and demo guide
 
+Project team: Aryan Vinju, Aditya Shetty, Avantika Jitesh and Apeksha Ashok. Student identifiers are included in the private submission PDFs. Assign actual contributions and PR authorship only after the team confirms its work.
+
 ## How to make the submission defensible
 
 Plagiarism checks are passed by doing and explaining original work, not by disguising copied code. Keep the raw dataset and its source note separate from authored code. Cite scikit-learn, PyTorch, Flask, Kubernetes and any tutorial ideas that influenced the implementation. Retain meaningful commits and pull request reviews showing who designed, coded, tested and revised each part. Do not claim a teammate wrote a module they did not write.

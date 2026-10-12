@@ -25,6 +25,7 @@ styles.add(ParagraphStyle(name="DocTitleX", parent=styles["Title"], fontName="He
 styles.add(ParagraphStyle(name="H1X", parent=styles["Heading1"], fontSize=12, leading=16, textColor=NAVY, spaceBefore=17, spaceAfter=6))
 styles.add(ParagraphStyle(name="H2X", parent=styles["Heading2"], fontSize=10, leading=14, textColor=TEAL, spaceBefore=12, spaceAfter=5))
 styles.add(ParagraphStyle(name="BodyX", parent=styles["BodyText"], fontSize=8.6, leading=12.5, spaceAfter=5))
+styles.add(ParagraphStyle(name="IdentityX", parent=styles["BodyText"], fontSize=8, leading=10, spaceAfter=2))
 styles.add(ParagraphStyle(name="CellX", parent=styles["BodyText"], fontSize=7.3, leading=10))
 styles.add(ParagraphStyle(name="HeaderCellX", parent=styles["BodyText"], fontName="Helvetica-Bold", fontSize=7.3, leading=10, textColor=colors.black))
 styles.add(ParagraphStyle(name="DiagramTextX", parent=styles["BodyText"], alignment=TA_CENTER, fontSize=8))
@@ -106,6 +107,7 @@ def parse(path):
         lines = lines[1:]
     placeholder_prefixes = (
         "Student: project team",
+        "Project team:",
         "Tester: project team",
         "Class, section and instructor: complete on the private submission copy",
         "Instructor review: pending",
@@ -153,8 +155,11 @@ def parse(path):
         if line.startswith("# "):
             story.append(Paragraph(markup(line[2:]),styles["DocTitleX"]))
             if private_meta.exists():
-                identity = private_meta.read_text(encoding="utf-8").strip().replace("Private submission copy | ", "")
-                story.append(Paragraph(markup(identity), styles["BodyX"]))
+                identities = [value.strip() for value in private_meta.read_text(encoding="utf-8").splitlines() if value.strip()]
+                if identities:
+                    story.append(Paragraph(markup(identities[0]), styles["IdentityX"]))
+                    for offset in range(1, len(identities), 2):
+                        story.append(Paragraph(markup(";  ".join(identities[offset:offset + 2])), styles["IdentityX"]))
         elif line.startswith("## "):
             story.append(Paragraph(markup(line[3:]),styles["H1X"]))
         elif line.startswith("### "):

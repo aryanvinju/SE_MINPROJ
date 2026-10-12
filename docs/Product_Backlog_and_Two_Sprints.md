@@ -2,6 +2,8 @@
 
 Plan recorded 12 October 2026. Repository: [aryanvinju/SE_MINPROJ](https://github.com/aryanvinju/SE_MINPROJ). The [SRS](SRS.md), [architecture](Architecture_Design.md), and [system test plan](System_Test_Plan.md) define acceptance. The dates below follow the instructor's assignment. Story points express relative effort, not hours.
 
+Project team: Aryan Vinju, Aditya Shetty, Avantika Jitesh and Apeksha Ashok. Student identifiers are included in the private submission PDFs. GitHub issue ownership remains provisional until each teammate's GitHub username is supplied; this roster does not claim who authored existing code.
+
 The implementation already exists as a working dry run. Existing code, tests, pull requests, CI, Docker Hub and local Kubernetes results are **pre-sprint evidence**. Sprint 1 and Sprint 2 have not happened as of 12 October; their reviews, teammate PRs and videos must be recorded during the stated weeks. Issue ownership is provisionally `@aryanvinju` until teammate GitHub usernames are supplied. Reassign each issue to its actual contributor before that sprint starts.
 
 The [Jira board](https://pesuonline-team-g6ej69na.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog) also has two future sprints on these dates. Sprint 1 (ID 103) contains SCRUM-5, SCRUM-6, SCRUM-9, SCRUM-10 and SCRUM-14, totaling 15 points. Sprint 2 (ID 104) contains SCRUM-7, SCRUM-8, SCRUM-11, SCRUM-12 and SCRUM-13, totaling 19 points. The earlier duplicate Docker Hub story SCRUM-15 sits in the product backlog; its scope is included in SCRUM-12. GitHub issues below are the detailed FR/NFR traceability record.

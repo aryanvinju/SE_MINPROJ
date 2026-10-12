@@ -3,7 +3,7 @@
 
 Version 2.1 · 12 October 2026 · Prepared for the software engineering mini-project
 
-Student: project team  
+Project team: Aryan Vinju, Aditya Shetty, Avantika Jitesh, Apeksha Ashok. Student identifiers are in the private submission PDFs.
 Class, section and instructor: complete on the private submission copy
 
 ## 1 Purpose and scope

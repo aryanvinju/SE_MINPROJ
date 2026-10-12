@@ -1,7 +1,7 @@
 # TriadLens: Software Architecture and Design Specification (IEEE-style)
 
 Version 1.1 | 12 October 2026
-Author: project team; student identifiers are kept in the private submission PDFs
+Project team: Aryan Vinju, Aditya Shetty, Avantika Jitesh, Apeksha Ashok. Student identifiers are kept in the private submission PDFs.
 
 ## 1. Introduction
 
