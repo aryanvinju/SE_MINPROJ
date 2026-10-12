@@ -1,7 +1,7 @@
 # TriadLens: ML, DL and QML Disagreement Audit
 # Software Requirements Specification (IEEE-style)
 
-Version 2.0 · 9 October 2026 · Prepared for the software engineering mini-project
+Version 2.1 · 12 October 2026 · Prepared for the software engineering mini-project
 
 Student: project team  
 Class, section and instructor: complete on the private submission copy
@@ -10,7 +10,7 @@ Class, section and instructor: complete on the private submission copy
 
 **Problem statement.** Small, imbalanced health-survey datasets can produce deceptively similar accuracy scores from very different models. A single predicted label hides disagreement, class imbalance, and extrapolation beyond the training data. TriadLens is a full-stack educational audit portal that trains classical ML, deep learning and simulated quantum ML on one reproducible survey split, then shows model disagreement, a descriptive majority dataset label, the majority-class baseline and an age-range warning for each comparison. It is intended to help students inspect model behavior, not to diagnose disease.
 
-The application classifies records from the supplied lungcancer.csv dataset using machine learning, deep learning and simulated quantum machine learning. A student enters the 15 survey features, selects a model or all three, and reviews predicted YES/NO dataset labels, an agreement audit and held-out evaluation metrics. The project includes training code, saved artifacts, a Python backend, a browser interface, CI, Docker and Kubernetes deployment configuration.
+The application classifies records from the supplied lungcancer.csv dataset using machine learning, deep learning and simulated quantum machine learning. A student enters the 15 survey features, selects a model or all three, and reviews predicted YES/NO dataset labels, an agreement audit and held-out evaluation metrics. The project includes training code, saved artifacts, a Python backend, a browser interface, Git/GitHub collaboration, GitHub Actions CI, Docker, optional Docker Hub publication and Kubernetes deployment configuration.
 
 This document describes the implemented local application and the intended container deployment. Local model/API checks have passed. Live Docker and Kubernetes acceptance is pending because the execution environment denied Docker access and has no current Kubernetes context. The system is a classroom demonstration, not a clinical decision support system.
 
@@ -71,6 +71,7 @@ UC-01 load example; UC-02 enter features; UC-03 compare models, including valida
 | FR13 | The container deployment shall run two replicas reachable through a Kubernetes Service. | Pending ST18 and ST19 |
 | FR14 | Training shall persist the models, split IDs, version information and held-out predictions. | ST04, ST10 and ST13 |
 | FR15 | For ALL, the API shall report labels, agreement count, unanimity, a descriptive majority dataset label and review reasons for disagreement or age extrapolation; for one model, comparison shall be null. | ST24 and ST25 |
+| FR16 | An authorized manual GitHub Actions run on main shall publish the source-only image to an existing Docker Hub repository using repository secrets. | Workflow inspection; live ST26 pending Docker Hub account setup |
 
 ## 5 Nonfunctional requirements
 
@@ -84,7 +85,8 @@ UC-01 load example; UC-02 enter features; UC-03 compare models, including valida
 | NFR06 | A missing model artifact shall make readiness fail while liveness remains available. | ST08 |
 | NFR07 | Container configuration shall run as a non-root user with bounded resources. | Manifest inspection; live ST18 pending |
 | NFR08 | All local automated acceptance checks shall pass before submission. | 57 tests pass locally; JUnit evidence in the private submission bundle |
-| NFR09 | GitHub Actions shall run Python and JavaScript checks on pushes and pull requests, then build the Docker image if tests pass. | Workflow inspection; remote CI run pending |
+| NFR09 | GitHub Actions shall run Python and JavaScript checks on pushes and pull requests, then build the Docker image if tests pass. | GitHub Actions run history and current branch check |
+| NFR10 | Public Docker images shall exclude the survey CSV, model artifacts and detailed reports; Kubernetes shall mount required artifacts separately. | Docker context inspection, CI image check and pending live ST18–ST19 |
 
 There is no medically meaningful accuracy acceptance threshold. The project reports measured results transparently and includes the majority-class baseline. No sustained load, multi-user capacity or production availability guarantee has been established.
 

@@ -71,16 +71,18 @@ def diagram(kind):
             arrow(d,345,y,380,96)
         label(d,235,174,"Online inference components",10)
     elif kind == "deployment":
-        boxes=[(10,80,75,"Browser"),(110,80,85,"K8s Service"),(225,120,100,"Pod 1: Flask"),(225,40,100,"Pod 2: Flask"),(365,80,105,"Docker image")]
+        boxes=[(10,80,75,"Browser"),(110,80,85,"K8s Service"),(225,120,100,"Pod 1: Flask"),(225,40,100,"Pod 2: Flask"),(365,120,105,"Docker Hub image"),(365,40,105,"Artifact Secrets")]
         for x,y,w,t in boxes:
             d.add(Rect(x,y,w,32,strokeColor=TEAL,fillColor=PALE,rx=5,ry=5))
             label(d,x+w/2,y+12,t,8)
         arrow(d,85,96,110,96)
         arrow(d,195,96,225,136)
         arrow(d,195,96,225,56)
-        arrow(d,365,96,325,136)
-        arrow(d,365,96,325,56)
-        label(d,235,174,"Two-replica deployment",10)
+        arrow(d,365,136,325,136)
+        arrow(d,365,136,325,56)
+        arrow(d,365,56,325,136)
+        arrow(d,365,56,325,56)
+        label(d,235,174,"Two replicas with private model mounts",10)
     else:
         training = kind == "train"
         names=["Operator" if training else "Student","train.py" if training else "Browser","Models" if training else "Flask API","Reports" if training else "Adapters"]
@@ -171,4 +173,3 @@ for source in [HERE/"SRS.md", HERE/"System_Test_Plan.md", HERE/"Architecture_Des
     doc=SimpleDocTemplate(str(target),pagesize=(595.28,841.89),leftMargin=42,rightMargin=42,topMargin=42,bottomMargin=42,title=source.stem,author="Aryan Vinju")
     doc.build(parse(source))
     print(target)
-

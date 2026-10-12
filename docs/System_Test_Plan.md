@@ -1,7 +1,7 @@
 # TriadLens: ML, DL and QML Disagreement Audit
 # System Test Plan and Execution Record (IEEE-style)
 
-Version 2.0 | 9 October 2026
+Version 2.1 | 12 October 2026
 
 Student: project team
 Tester: project team
@@ -9,7 +9,7 @@ Instructor review: pending
 
 ## 1. Objective and scope
 
-Verify the full-stack prediction flow, all three models, disagreement audit, educational risk bands, input validation, data separation, quantum simulator correctness and Kubernetes deployment. This plan covers software behavior, not clinical validation or quantum advantage.
+Verify the full-stack prediction flow, all three models, disagreement audit, educational risk bands, input validation, data separation, quantum simulator correctness, GitHub Actions, Docker Hub publication and Kubernetes deployment. This plan covers software behavior, not clinical validation or quantum advantage.
 
 ## 2. Test items and environment
 
@@ -65,10 +65,11 @@ ML and DL: Low below 0.30; Moderate from 0.30 to below 0.70; High at or above 0.
 |---|---|---|---|
 | ST16 | In the browser, load an example, run ALL and each model, then submit a missing field. | Correct result cards and risk badges appear; required-input error is visible. | PENDING manual interaction check |
 | ST17 | Use keyboard navigation, 375 px viewport and 200 percent zoom. | Focus and controls remain visible and usable. | PENDING manual check |
-| ST18 | Build the image and run it on host port 5001. | Container becomes ready and all three models respond. | BLOCKED by Docker access in execution environment |
-| ST19 | Load the image, apply YAML, wait for rollout and port-forward Service to 8080. | Two ready Pods and successful three-model HTTP response through Service. | BLOCKED by missing configured cluster |
+| ST18 | Build the source-only image, mount local model/report files and run it on host port 5001. | Container becomes ready and all three models respond; image itself contains no private artifacts. | BLOCKED by Docker access in execution environment |
+| ST19 | Create local cluster Secrets, load or pull the image, apply YAML, wait for rollout and port-forward Service to 8080. | Two ready Pods and successful three-model HTTP response through Service. | BLOCKED by missing configured cluster |
 | ST20 | Scale to three replicas, verify readiness, then restore two. | Desired replica counts are achieved. | PENDING ST19 |
 | ST21 | Delete one exact Pod in namespace lung-lab and observe replacement. | Replacement becomes ready; API works after reconnecting port-forward if needed. | PENDING ST19 |
+| ST26 | Configure Docker Hub repository secrets and manually dispatch the workflow from main. | GitHub Actions publishes SHA and latest tags to aryanvinju/se_miniproj; pulled image excludes survey rows and model artifacts. | PENDING Docker Hub token and main-branch workflow |
 
 Kubernetes YAML parsing and label-selector consistency were checked. They do not establish that a cluster deployment works. Optional WebMCP integration has not been checked in a compatible browser and is outside lab acceptance.
 
@@ -80,8 +81,8 @@ From the project folder, run `python train.py`, then `python -m pytest -q --juni
 
 Preserve test_results.xml, metrics.json, splits.json, test_predictions.csv and http_smoke_test.json. Capture actual browser results and real kubectl output when manual/operational checks are executed. Do not fabricate screenshots or mark blocked tests passed.
 
-Local automated acceptance requires every automated test and a real HTTP smoke request to succeed. Full lab acceptance also requires ST16 through ST21, a remote GitHub Actions run, and instructor review. Current local software checks pass; Docker/Kubernetes and browser interaction acceptance remain incomplete.
+Local automated acceptance requires every automated test and a real HTTP smoke request to succeed. Full lab acceptance also requires ST16 through ST21, ST26, a remote GitHub Actions run, and instructor review. Current local software checks pass; Docker Hub publication, Docker/Kubernetes and browser interaction acceptance remain incomplete.
 
-Traceability: FR01–FR02 → ST01/ST16; FR03–FR04 → ST05–ST07/ST09; FR05–FR07 → ST03–ST04/ST16; FR08 → ST13; FR09–FR10 → ST10; FR11–FR12 → ST02/ST07–ST08; FR13 → ST18–ST21; FR14 → ST04/ST10/ST13; FR15 → ST24–ST25. NFR01–NFR08 map to ST04–ST21 as listed above; NFR09 requires a successful remote CI run.
+Traceability: FR01–FR02 → ST01/ST16; FR03–FR04 → ST05–ST07/ST09; FR05–FR07 → ST03–ST04/ST16; FR08 → ST13; FR09–FR10 → ST10; FR11–FR12 → ST02/ST07–ST08; FR13 → ST18–ST21; FR14 → ST04/ST10/ST13; FR15 → ST24–ST25; FR16 → ST26. NFR01–NFR08 map to ST04–ST21 as listed above; NFR09 requires a successful remote CI run; NFR10 maps to ST18–ST19 and ST26.
 
 For a failure, record case ID, environment, input, expected/actual result, reproduction steps, severity and evidence. Fix the implementation and rerun relevant checks. Never change expected labels to hide a failure or tune models on the held-out test partition.

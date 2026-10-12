@@ -2,7 +2,7 @@
 
 **Problem statement:** Small, imbalanced survey datasets can conceal disagreement between models when a product reports only one prediction. TriadLens compares classical ML, deep learning and simulated quantum-kernel ML on a common lung-survey split, exposes agreement and out-of-range inputs, and shows held-out results against a majority-class baseline. It is an educational audit portal, not a diagnostic tool.
 
-The project uses **lungcancer.csv** with ML, DL, QML, a Flask web interface, Docker, Kubernetes manifests, GitHub Actions, an SRS, a System Test Plan and a separate architecture/design specification. The public GitHub repository contains source code and a high-level performance table. The local submission bundle holds row-level data, detailed metrics, derived model artifacts and student-ID PDFs. See [data/README.md](data/README.md) for setup.
+The project uses **lungcancer.csv** with ML, DL, QML, a Flask web interface, Git, GitHub, GitHub Actions, Docker, a Docker Hub publishing workflow, Kubernetes manifests, an SRS, a System Test Plan and a separate architecture/design specification. The public GitHub repository contains source code and a high-level performance table. The local submission bundle holds row-level data, detailed metrics, derived model artifacts and student-ID PDFs. See [data/README.md](data/README.md) for setup.
 
 ## Start here on this computer
 
@@ -94,21 +94,32 @@ The API requires exactly `model` and `features`. It rejects missing/unknown fiel
 
 ## Docker
 
-The Dockerfile uses Gunicorn rather than Flask's development server. First ensure Docker Desktop is running with Linux containers. From this folder, run `python train.py` if model artifacts are not present, then:
+The Dockerfile uses Gunicorn rather than Flask's development server. The image deliberately excludes the survey CSV, trained model files and detailed reports. First ensure Docker Desktop is running with Linux containers. From this folder, run `python train.py` if model artifacts are not present, then mount those local files when starting the container:
 
 ```powershell
 docker build -t lung-cancer-lab:1.0 .
-docker run --rm -p 5001:5000 lung-cancer-lab:1.0
+$modelDir = (Resolve-Path .\models).Path
+$reportDir = (Resolve-Path .\reports).Path
+docker run --rm -p 5001:5000 --mount "type=bind,source=$modelDir,target=/app/models,readonly" --mount "type=bind,source=$reportDir,target=/app/reports,readonly" lung-cancer-lab:1.0
 ```
 
-Open http://127.0.0.1:5001. Training is done beforehand; the container loads the saved model files. The build requires internet access for dependencies. Its dependency download and execution have not been verified in this environment.
+Open http://127.0.0.1:5001. The container loads the mounted model files. The build requires internet access for dependencies. GitHub Actions has built the source-only image; the mounted-model container run has not been verified in this environment.
+
+## Docker Hub publication
+
+The GitHub Actions `publish` job targets [aryanvinju/se_miniproj](https://hub.docker.com/repository/docker/aryanvinju/se_miniproj/general) and pushes a **source-only** image. It runs only when manually dispatched on `main`, after the test and container checks pass. Add two GitHub repository Actions secrets: `DOCKERHUB_USERNAME` with value `aryanvinju`, and a Docker Hub access token named `DOCKERHUB_TOKEN`. In GitHub, open **Actions → TriadLens CI → Run workflow** and select `main`. The workflow tags the image with the Git commit SHA and `latest`. Never place the token in a tracked file or a workflow input.
+
+The Docker Hub repository has been provided, but its access token has not, so publication has **not** been executed. The published image will still need local model and report artifacts mounted at runtime; it does not contain row-level survey data or encoded training states.
 
 ## Kubernetes with Minikube
 
-The namespace `lung-lab` isolates this demonstration. The manifest defines two replicas, a ClusterIP Service, startup/readiness/liveness probes, resource limits, and a non-root container.
+The namespace `lung-lab` isolates this demonstration. The manifest defines two replicas, a ClusterIP Service, startup/readiness/liveness probes, resource limits, a non-root container and read-only Secret mounts for model/report artifacts. Use this only in a local lab cluster; the reports include dataset row identifiers.
 
 ```powershell
 minikube start --driver=docker
+kubectl create namespace lung-lab --dry-run=client -o yaml | kubectl apply -f -
+kubectl create secret generic triadlens-models --from-file=models/scaler.joblib --from-file=models/ml.joblib --from-file=models/qml.joblib --from-file=models/dl.pt -n lung-lab --dry-run=client -o yaml | kubectl apply -f -
+kubectl create secret generic triadlens-reports --from-file=reports/metrics.json --from-file=reports/example_request.json -n lung-lab --dry-run=client -o yaml | kubectl apply -f -
 docker build -t lung-cancer-lab:1.0 .
 minikube image load lung-cancer-lab:1.0
 kubectl apply -f k8s/lung-lab.yaml
@@ -130,7 +141,7 @@ kubectl scale deployment/lung-lab --replicas=2 -n lung-lab
 
 For a self-healing demonstration, delete **one pod belonging to this lab** using its exact name from `kubectl get pods -n lung-lab`; show that the Deployment creates a replacement. Restart port-forward if its selected pod was deleted. Do not delete unrelated pods. To remove this lab's resources when finished, use `kubectl delete -f k8s/lung-lab.yaml`.
 
-If using Docker Desktop's Kubernetes instead, enable it and select its context. Skip Minikube commands and make sure `lung-cancer-lab:1.0` is available to that cluster. For other clusters, push the image to your registry and update the manifest image reference.
+To use the Docker Hub image after it has been published, create the same namespace and Secrets on the selected local cluster, apply the manifest, then run `kubectl set image deployment/lung-lab web=aryanvinju/se_miniproj:<commit-sha> -n lung-lab` before checking rollout. Replace the bracketed SHA with the one shown in the successful Actions run. If using Docker Desktop's Kubernetes, enable it and select its context; skip Minikube commands. Avoid using a public cluster with the supplied detailed reports.
 
 Troubleshooting: `ImagePullBackOff` usually means the image is absent from the cluster; `CrashLoopBackOff` requires reading `kubectl logs deployment/lung-lab -n lung-lab`; an unset context means a cluster has not been selected. Do not claim deployment success until rollout and HTTP requests succeed.
 
@@ -139,7 +150,7 @@ Troubleshooting: `ImagePullBackOff` usually means the image is absent from the c
 - **57 automated tests passed locally**, including four data-free public CI checks, model disagreement rules, API predictions on all 55 held-out records, malformed-input handling, missing-model readiness, split integrity, known quantum gate behavior, and kernel properties.
 - A live HTTP request to the local app and a three-model prediction succeeded.
 - JavaScript passed Node's syntax check. Browser interaction, responsive layout and accessibility tests are listed as pending manual checks.
-- Kubernetes YAML parsed and selectors matched. **Docker build and live Kubernetes deployment remain unverified:** Docker access was denied and no current Kubernetes context was configured.
+- GitHub Actions has passed the public checks and built the source-only Docker image. **A mounted-model Docker run, Docker Hub push and live Kubernetes deployment remain unverified:** Docker access was denied, no current Kubernetes context was configured, and a Docker Hub token has not been configured in GitHub Actions.
 - Optional WebMCP registration is feature-detected. No compatible browser validation context was available; it is not part of the verified lab acceptance criteria.
 
 ## Files to submit
@@ -156,7 +167,16 @@ The documents are editable Markdown and can be opened in a text editor or copied
 
 ## Git and GitHub Actions
 
-The `.github/workflows/ci.yml` workflow runs the public, data-free Python checks and a JavaScript syntax check on pushes and pull requests, then builds the Docker image. The full 57-case local suite requires the private row-level dataset and derived evidence. Use branches and pull requests for team contributions; review a teammate's diff and record the review on GitHub before merge. A configured workflow is not evidence of a successful remote run; inspect the Actions tab after pushing.
+The `.github/workflows/ci.yml` workflow runs the public, data-free Python checks and a JavaScript syntax check on pushes and pull requests, builds the Docker image, and checks that private artifacts are absent. Its manual `publish` job logs in to Docker Hub using repository secrets and pushes an image only from `main`. The full 57-case local suite requires the private row-level dataset and derived evidence. Git tracks source changes locally; GitHub hosts the branch, pull request and Actions runs. Review a teammate's diff and record the review on GitHub before merge.
+
+| Tool | Project use | Current evidence |
+|---|---|---|
+| Git | Versioned source and local commits | `git log` in this workspace |
+| GitHub | Source branch and review PR | [TriadLens PR #1](https://github.com/aryanvinju/SE_MINPROJ/pull/1) |
+| GitHub Actions | Python/JavaScript checks and image build | [Successful CI run](https://github.com/aryanvinju/SE_MINPROJ/actions/runs/38199333779); Docker Hub job awaits a token and main-branch workflow |
+| Docker | Reproducible source-only Gunicorn image | Dockerfile and CI image build; mounted-model run pending |
+| Docker Hub | Image registry for `aryanvinju/se_miniproj` | Repository supplied; publish run pending |
+| Kubernetes | Two replicas, Service, health probes and artifact Secret mounts | Manifest validated; live rollout pending |
 
 ## Primary references
 

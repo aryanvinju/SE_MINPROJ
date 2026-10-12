@@ -6,3 +6,11 @@ __pycache__
 *.zip
 docs
 tests
+data/lungcancer.csv
+models/*.joblib
+models/*.pt
+reports/*.json
+reports/*.xml
+reports/test_predictions.csv
+.private_submission.txt
+tmp

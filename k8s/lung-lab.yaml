@@ -62,9 +62,21 @@ spec:
               port: http
             periodSeconds: 10
           volumeMounts:
+            - name: model-artifacts
+              mountPath: /app/models
+              readOnly: true
+            - name: report-artifacts
+              mountPath: /app/reports
+              readOnly: true
             - name: temporary
               mountPath: /tmp
       volumes:
+        - name: model-artifacts
+          secret:
+            secretName: triadlens-models
+        - name: report-artifacts
+          secret:
+            secretName: triadlens-reports
         - name: temporary
           emptyDir:
             sizeLimit: 64Mi

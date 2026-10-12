@@ -11,7 +11,7 @@ Each team member should be able to explain and, if asked, modify their contribut
 1. Data and ML: audit the CSV, explain duplicate/conflicting rows, train logistic regression and the majority baseline.
 2. DL: implement/check the PyTorch model, validation checkpoint choice and training curves.
 3. QML: explain RY/RZ/CNOT gates, fidelity kernel, PCA compression and SVM; verify kernel mathematical tests.
-4. Full stack and DevOps: API validation, disagreement audit, UI, CI, Docker/Kubernetes configuration and documentation.
+4. Full stack and DevOps: API validation, disagreement audit, UI, Git/GitHub review, GitHub Actions, Docker, Docker Hub publication, Kubernetes configuration and documentation.
 
 Use the actual team names and GitHub handles in pull requests and issue assignments. This is a suggested split until the team confirms membership.
 
@@ -21,12 +21,13 @@ Show the 309-row CSV, cleaning report and train/validation/test counts; run trai
 
 ## Two-minute Sprint 2 video outline
 
-Open the Flask UI; load an example; run ALL; explain model scores versus QML margin, agreement panel and age-range warning; submit an invalid value; show CI result and, if available, a real Docker/Kubernetes rollout. State any checks still pending and show the Jira sprint board.
+Open the Flask UI; load an example; run ALL; explain model scores versus QML margin, agreement panel and age-range warning; submit an invalid value; show the GitHub PR and CI result. If a Docker Hub push and Kubernetes rollout have succeeded, show their real tags and Pod status. State any checks still pending and show the Jira sprint board.
 
 ## Release evidence checklist
 
 - Exact Git commit and reviewed pull request links.
 - GitHub Actions run URL with test and image-build status.
+- Docker Hub repository and immutable image tag after an actual publish run.
 - Model metric JSON, split IDs and held-out predictions.
 - Test run output and manual browser notes.
 - Docker image build/run output and Kubernetes rollout/pod/service output when actually executed.

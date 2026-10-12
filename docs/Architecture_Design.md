@@ -1,11 +1,11 @@
 # TriadLens: Software Architecture and Design Specification (IEEE-style)
 
-Version 1.0 | 9 October 2026  
+Version 1.1 | 12 October 2026
 Author: project team; student identifiers are kept in the private submission PDFs
 
 ## 1. Introduction
 
-This document designs the educational ML/DL/QML disagreement-audit portal defined in SRS v2.0. The design separates offline model training from online inference, retains one reproducible data split, and gives users enough evidence to recognize disagreement and class imbalance. The system is not a clinical decision system.
+This document designs the educational ML/DL/QML disagreement-audit portal defined in SRS v2.1. The design separates offline model training from online inference, retains one reproducible data split, and gives users enough evidence to recognize disagreement and class imbalance. The system is not a clinical decision system.
 
 ## 2. Architecture
 
@@ -38,14 +38,17 @@ The browser has no access to model files. The validator owns field/type constrai
 ```mermaid
 flowchart LR
   User[Browser] --> Service[Kubernetes Service :80]
-  Service --> Pod1[Pod 1: Gunicorn + Flask + models]
-  Service --> Pod2[Pod 2: Gunicorn + Flask + models]
-  CI[GitHub Actions] --> Image[Docker image]
+  Service --> Pod1[Pod 1: Gunicorn + Flask]
+  Service --> Pod2[Pod 2: Gunicorn + Flask]
+  CI[GitHub Actions] --> Hub[Docker Hub source-only image]
+  Hub --> Image[Docker image]
   Image --> Pod1
   Image --> Pod2
+  Secrets[Local cluster model and report Secrets] --> Pod1
+  Secrets --> Pod2
 ```
 
-The Dockerfile uses a non-root user, Gunicorn, and port 5000. The Kubernetes Deployment requests CPU/memory, sets limits, drops Linux capabilities, uses a read-only root filesystem and mounts a small writable `/tmp`. Startup/readiness probes call `/health/ready`; liveness calls `/health/live`. Live deployment is pending access to a Docker engine and cluster.
+The Dockerfile uses a non-root user, Gunicorn, and port 5000. The Docker context excludes the survey CSV, model artifacts and detailed reports. GitHub Actions builds that source-only image on pushes and pull requests; an authorized manual job can publish it to the supplied Docker Hub repository. The Kubernetes Deployment requests CPU/memory, sets limits, drops Linux capabilities, uses a read-only root filesystem and mounts a small writable `/tmp` plus read-only model/report Secrets. Startup/readiness probes call `/health/ready`; liveness calls `/health/live`. Docker Hub publication and live deployment are pending an access token and cluster access.
 
 ### 2.4 Requirement traceability
 
@@ -59,11 +62,11 @@ The Dockerfile uses a non-root user, Gunicorn, and port 5000. The Kubernetes Dep
 | FR12–FR13 | Health endpoints, Docker, Kubernetes | ST02, ST08, ST18–ST21 |
 | FR15 | Disagreement audit and browser panel | ST24–ST25 |
 | NFR01–NFR08, SR-01–SR-04 | Tests, security headers, data minimization, non-root deployment | ST04–ST21 |
-| NFR09 | GitHub Actions workflow | Remote CI run pending |
+| FR16, NFR09–NFR10 | GitHub Actions workflow, Docker Hub job, artifact exclusion and Secret mounts | CI run and pending ST26 |
 
 ### 2.5 Security architecture
 
-The API accepts a JSON object with exactly `model` and `features`, rejects unknown fields, enforces types and ranges, and limits payloads to 16 KiB. Serialized model files are loaded only from the trusted deployment image. Survey inputs are not persisted. Responses use no-store caching, nosniff, and a same-origin Content Security Policy. The image runs as UID 10001 and the manifest drops capabilities. The service must be exposed through HTTPS for any networked demonstration; the local port-forward is intended for a lab environment.
+The API accepts a JSON object with exactly `model` and `features`, rejects unknown fields, enforces types and ranges, and limits payloads to 16 KiB. Serialized model files come from trusted local mounts or Kubernetes Secrets, not the public image. Survey inputs are not persisted. Responses use no-store caching, nosniff, and a same-origin Content Security Policy. The image runs as UID 10001 and the manifest drops capabilities. The service must be exposed through HTTPS for any networked demonstration; the local port-forward is intended for a lab environment.
 
 ## 3. Detailed design
 
@@ -139,4 +142,4 @@ Only 55 cleaned records form the test set, including seven NO labels, so the rep
 
 ## 4. Change control and verification
 
-Changes to preprocessing require retraining all three models, updating split/metric reports, and rerunning tests. Changes to the disagreement rule require updates to FR15, ST24–ST25, the API contract and the browser panel. GitHub Actions is configured to run tests and build the image for pushes and pull requests; remote evidence remains pending until the repository receives this code.
+Changes to preprocessing require retraining all three models, updating split/metric reports, and rerunning tests. Changes to the disagreement rule require updates to FR15, ST24–ST25, the API contract and the browser panel. Git tracks reviewed source changes; GitHub hosts the pull request. GitHub Actions runs checks and builds the source-only image for pushes and pull requests. Docker Hub publication is manual after repository secrets and a destination repository exist; the Kubernetes image reference must then be set to its published tag.
