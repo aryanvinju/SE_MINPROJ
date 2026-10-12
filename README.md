@@ -12,7 +12,7 @@ Open a terminal in this folder and run:
 python app.py
 ```
 
-Open **http://127.0.0.1:5000**, click **Load dataset example**, then **Run comparison**. Trained models are included in the local submission bundle. A clean public-repository checkout needs the dataset added and `python train.py` run first. You can also double-click `run_lab.cmd`. If port 5000 is already in use by the running preview, open the existing URL or set `$env:PORT='5001'` before starting.
+Open **http://127.0.0.1:5000**, click **Load example**, then **Run comparison**. Trained models are included in the local submission bundle. A clean public-repository checkout needs the dataset added and `python train.py` run first. You can also double-click `run_lab.cmd`. If port 5000 is already in use by the running preview, open the existing URL or set `$env:PORT='5001'` before starting.
 
 With all three models selected, the result includes an agreement audit: per-model labels, a descriptive majority dataset label and a review flag when labels disagree or age lies outside the training range. A single-model request has no comparison audit. Agreement is not a clinical vote.
 
