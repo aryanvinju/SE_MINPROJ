@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: lung-lab
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lung-lab
+  namespace: lung-lab
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: lung-lab
+  template:
+    metadata:
+      labels:
+        app: lung-lab
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: web
+          image: lung-cancer-lab:1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+              name: http
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: '1'
+              memory: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ['ALL']
+          startupProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            failureThreshold: 60
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 10
+          volumeMounts:
+            - name: model-artifacts
+              mountPath: /app/models
+              readOnly: true
+            - name: report-artifacts
+              mountPath: /app/reports
+              readOnly: true
+            - name: temporary
+              mountPath: /tmp
+      volumes:
+        - name: model-artifacts
+          secret:
+            secretName: triadlens-models
+        - name: report-artifacts
+          secret:
+            secretName: triadlens-reports
+        - name: temporary
+          emptyDir:
+            sizeLimit: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lung-lab
+  namespace: lung-lab
+spec:
+  type: ClusterIP
+  selector:
+    app: lung-lab
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

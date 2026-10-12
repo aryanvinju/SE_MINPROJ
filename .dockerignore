@@ -1,0 +1,16 @@
+.git
+.venv
+__pycache__
+**/__pycache__
+.pytest_cache
+*.zip
+docs
+tests
+data/lungcancer.csv
+models/*.joblib
+models/*.pt
+reports/*.json
+reports/*.xml
+reports/test_predictions.csv
+.private_submission.txt
+tmp
