@@ -6,6 +6,8 @@ The implementation already exists as a working dry run. Existing code, tests, pu
 
 The [Jira board](https://pesuonline-team-g6ej69na.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog) also has two future sprints on these dates. Sprint 1 (ID 103) contains SCRUM-5, SCRUM-6, SCRUM-9, SCRUM-10 and SCRUM-14, totaling 15 points. Sprint 2 (ID 104) contains SCRUM-7, SCRUM-8, SCRUM-11, SCRUM-12 and SCRUM-13, totaling 19 points. The earlier duplicate Docker Hub story SCRUM-15 sits in the product backlog; its scope is included in SCRUM-12. GitHub issues below are the detailed FR/NFR traceability record.
 
+On GitHub, [Sprint 1 milestone](https://github.com/aryanvinju/SE_MINPROJ/milestone/1) contains issues #3–#7 and [Sprint 2 milestone](https://github.com/aryanvinju/SE_MINPROJ/milestone/2) contains issues #8–#12. Both milestones are open with the assignment due dates. They organize the issues while the requested GitHub Project board is awaiting Projects access.
+
 ## Product backlog
 
 | Issue | Product backlog item and acceptance outcome | SRS trace | Points | Sprint | Owner |
@@ -53,7 +55,7 @@ From this workspace run `python app.py` after loading the local model artifacts,
 | Date | Planned requirement | Actual result or deviation | Evidence / decision |
 |---|---|---|---|
 | 12 Oct | Dry-run implementation and deployment | Core features and local Docker Desktop Kubernetes checks exist ahead of the scheduled sprints | PRs, Actions and DevOps log above |
-| 12 Oct | GitHub Project board linked to repository | GitHub issues and sprint backlogs created; board creation remains blocked because the available GitHub credential lacks Projects scope and the browser session is signed out | [Repository Projects](https://github.com/aryanvinju/SE_MINPROJ/projects) |
+| 12 Oct | GitHub Project board linked to repository | GitHub issues and two sprint milestones created; Project board creation remains blocked because the available GitHub credential lacks Projects scope and the browser session is signed out | [Repository Projects](https://github.com/aryanvinju/SE_MINPROJ/projects) |
 | 12 Oct | Team assignments | `@aryanvinju` is provisional; teammates' handles have not yet been supplied | Reassign before each sprint |
 | 23 Oct | Sprint 1 review, teammate PR, one-minute video | Pending scheduled sprint | Add PR/reviewer/CI/video links to #7 |
 | 30 Oct | Sprint 2 review, two-minute video and freeze | Pending scheduled sprint | Add PR/reviewer/CI/video/frozen SHA to #12 |
