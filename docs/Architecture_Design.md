@@ -48,7 +48,7 @@ flowchart LR
   Secrets --> Pod2
 ```
 
-The Dockerfile uses a non-root user, Gunicorn, and port 5000. The Docker context excludes the survey CSV, model artifacts and detailed reports. GitHub Actions builds that source-only image on pushes and pull requests; a successful main-branch run publishes it to the supplied Docker Hub repository. The Kubernetes Deployment requests CPU/memory, sets limits, drops Linux capabilities, uses a read-only root filesystem and mounts a small writable `/tmp` plus read-only model/report Secrets. Startup/readiness probes call `/health/ready`; liveness calls `/health/live`. Publication and live deployment require actual Actions and cluster evidence.
+The Dockerfile uses a non-root user, Gunicorn, and port 5000. The Docker context excludes the survey CSV, model artifacts and detailed reports. GitHub Actions builds that source-only image on pushes and pull requests; [main run 38201577529](https://github.com/aryanvinju/SE_MINPROJ/actions/runs/38201577529) published its SHA and latest tags to Docker Hub. The Kubernetes Deployment requests CPU/memory, sets limits, drops Linux capabilities, uses a read-only root filesystem and mounts a small writable `/tmp` plus read-only model/report Secrets. Startup/readiness probes call `/health/ready`; liveness calls `/health/live`. Live deployment still requires cluster evidence.
 
 ### 2.4 Requirement traceability
 
@@ -62,7 +62,7 @@ The Dockerfile uses a non-root user, Gunicorn, and port 5000. The Docker context
 | FR12–FR13 | Health endpoints, Docker, Kubernetes | ST02, ST08, ST18–ST21 |
 | FR15 | Disagreement audit and browser panel | ST24–ST25 |
 | NFR01–NFR08, SR-01–SR-04 | Tests, security headers, data minimization, non-root deployment | ST04–ST21 |
-| FR16, NFR09–NFR10 | GitHub Actions workflow, Docker Hub job, artifact exclusion and Secret mounts | CI run and pending ST26 |
+| FR16, NFR09–NFR10 | GitHub Actions workflow, Docker Hub job, artifact exclusion and Secret mounts | Successful main publish run; ST26 local pull pending |
 
 ### 2.5 Security architecture
 
@@ -143,3 +143,4 @@ Only 55 cleaned records form the test set, including seven NO labels, so the rep
 ## 4. Change control and verification
 
 Changes to preprocessing require retraining all three models, updating split/metric reports, and rerunning tests. Changes to the disagreement rule require updates to FR15, ST24–ST25, the API contract and the browser panel. Git tracks reviewed source changes; GitHub hosts the pull request. GitHub Actions runs checks and builds the source-only image for pushes and pull requests, then publishes to Docker Hub from main when checks pass. The Kubernetes image reference must be set to its published SHA tag.
+

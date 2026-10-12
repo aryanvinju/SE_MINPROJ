@@ -69,7 +69,7 @@ ML and DL: Low below 0.30; Moderate from 0.30 to below 0.70; High at or above 0.
 | ST19 | Create local cluster Secrets, load or pull the image, apply YAML, wait for rollout and port-forward Service to 8080. | Two ready Pods and successful three-model HTTP response through Service. | BLOCKED by missing configured cluster |
 | ST20 | Scale to three replicas, verify readiness, then restore two. | Desired replica counts are achieved. | PENDING ST19 |
 | ST21 | Delete one exact Pod in namespace lung-lab and observe replacement. | Replacement becomes ready; API works after reconnecting port-forward if needed. | PENDING ST19 |
-| ST26 | After repository secrets are configured, merge the reviewed PR or manually run the workflow on main. | GitHub Actions publishes SHA and latest tags to aryanvinju/se_miniproj; pulled image excludes survey rows and model artifacts. | PENDING main-branch workflow evidence |
+| ST26 | After repository secrets are configured, merge the reviewed PR or manually run the workflow on main. | GitHub Actions publishes SHA and latest tags to aryanvinju/se_miniproj; pulled image excludes survey rows and model artifacts. | PARTIAL PASS: [main run 38201577529](https://github.com/aryanvinju/SE_MINPROJ/actions/runs/38201577529) pushed both tags, digest `sha256:ecbd5049e833911c3db2b09d0395d207a32797b2ef87b8235e233af3373d0e87`; local pull and image inspection pending Docker daemon access |
 
 Kubernetes YAML parsing and label-selector consistency were checked. They do not establish that a cluster deployment works. Optional WebMCP integration has not been checked in a compatible browser and is outside lab acceptance.
 
@@ -81,8 +81,9 @@ From the project folder, run `python train.py`, then `python -m pytest -q --juni
 
 Preserve test_results.xml, metrics.json, splits.json, test_predictions.csv and http_smoke_test.json. Capture actual browser results and real kubectl output when manual/operational checks are executed. Do not fabricate screenshots or mark blocked tests passed.
 
-Local automated acceptance requires every automated test and a real HTTP smoke request to succeed. Full lab acceptance also requires ST16 through ST21, ST26, a remote GitHub Actions run, and instructor review. Current local software checks pass; Docker Hub publication, Docker/Kubernetes and browser interaction acceptance remain incomplete.
+Local automated acceptance requires every automated test and a real HTTP smoke request to succeed. Full lab acceptance also requires ST16 through ST21, ST26, a remote GitHub Actions run, and instructor review. Current local software checks and the remote Docker Hub publish pass; local image inspection, Docker/Kubernetes and browser interaction acceptance remain incomplete.
 
 Traceability: FR01–FR02 → ST01/ST16; FR03–FR04 → ST05–ST07/ST09; FR05–FR07 → ST03–ST04/ST16; FR08 → ST13; FR09–FR10 → ST10; FR11–FR12 → ST02/ST07–ST08; FR13 → ST18–ST21; FR14 → ST04/ST10/ST13; FR15 → ST24–ST25; FR16 → ST26. NFR01–NFR08 map to ST04–ST21 as listed above; NFR09 requires a successful remote CI run; NFR10 maps to ST18–ST19 and ST26.
 
 For a failure, record case ID, environment, input, expected/actual result, reproduction steps, severity and evidence. Fix the implementation and rerun relevant checks. Never change expected labels to hide a failure or tune models on the held-out test partition.
+

@@ -109,7 +109,7 @@ Open http://127.0.0.1:5001. The container loads the mounted model files. The bui
 
 The GitHub Actions `publish` job targets [aryanvinju/se_miniproj](https://hub.docker.com/repository/docker/aryanvinju/se_miniproj/general) and pushes a **source-only** image after tests pass on a push to `main`. It can also be rerun manually on `main` through **Actions → TriadLens CI → Run workflow**. It uses GitHub repository Actions secrets `DOCKERHUB_USERNAME` (value `aryanvinju`) and `DOCKERHUB_TOKEN` (a Docker Hub access token). The workflow tags the image with the Git commit SHA and `latest`. Never place the token in a tracked file or a workflow input.
 
-The Docker Hub repository and GitHub Actions secrets have been supplied. Verify publication in the Actions run and Docker Hub tag list after merging this PR. The published image still needs local model and report artifacts mounted at runtime; it does not contain row-level survey data or encoded training states.
+The [main-branch publish run](https://github.com/aryanvinju/SE_MINPROJ/actions/runs/38201577529) succeeded on 12 October 2026. It pushed `aryanvinju/se_miniproj:0cf74d38d7729b70ff8a66c9588400286f6d0aea` and `:latest`, both with digest `sha256:ecbd5049e833911c3db2b09d0395d207a32797b2ef87b8235e233af3373d0e87`. The published image still needs local model and report artifacts mounted at runtime; it does not contain row-level survey data or encoded training states.
 
 ## Kubernetes with Minikube
 
@@ -141,7 +141,7 @@ kubectl scale deployment/lung-lab --replicas=2 -n lung-lab
 
 For a self-healing demonstration, delete **one pod belonging to this lab** using its exact name from `kubectl get pods -n lung-lab`; show that the Deployment creates a replacement. Restart port-forward if its selected pod was deleted. Do not delete unrelated pods. To remove this lab's resources when finished, use `kubectl delete -f k8s/lung-lab.yaml`.
 
-To use the Docker Hub image after it has been published, create the same namespace and Secrets on the selected local cluster, apply the manifest, then run `kubectl set image deployment/lung-lab web=aryanvinju/se_miniproj:<commit-sha> -n lung-lab` before checking rollout. Replace the bracketed SHA with the one shown in the successful Actions run. If using Docker Desktop's Kubernetes, enable it and select its context; skip Minikube commands. Avoid using a public cluster with the supplied detailed reports.
+To use the published Docker Hub image, create the same namespace and Secrets on the selected local cluster, apply the manifest, then run `kubectl set image deployment/lung-lab web=aryanvinju/se_miniproj:0cf74d38d7729b70ff8a66c9588400286f6d0aea -n lung-lab` before checking rollout. If using Docker Desktop's Kubernetes, enable it and select its context; skip Minikube commands. Avoid using a public cluster with the supplied detailed reports.
 
 Troubleshooting: `ImagePullBackOff` usually means the image is absent from the cluster; `CrashLoopBackOff` requires reading `kubectl logs deployment/lung-lab -n lung-lab`; an unset context means a cluster has not been selected. Do not claim deployment success until rollout and HTTP requests succeed.
 
@@ -150,7 +150,7 @@ Troubleshooting: `ImagePullBackOff` usually means the image is absent from the c
 - **57 automated tests passed locally**, including four data-free public CI checks, model disagreement rules, API predictions on all 55 held-out records, malformed-input handling, missing-model readiness, split integrity, known quantum gate behavior, and kernel properties.
 - A live HTTP request to the local app and a three-model prediction succeeded.
 - JavaScript passed Node's syntax check. Browser interaction, responsive layout and accessibility tests are listed as pending manual checks.
-- GitHub Actions has passed the public checks and built the source-only Docker image. Check the latest main-branch Actions run for Docker Hub publication. A mounted-model Docker run and live Kubernetes deployment remain unverified: Docker access was denied and no current Kubernetes context was configured.
+- GitHub Actions passed the public checks, built the source-only Docker image and published its SHA and latest tags to Docker Hub. A mounted-model Docker run and live Kubernetes deployment remain unverified while the local Docker daemon and Kubernetes context are unavailable to this session.
 - Optional WebMCP registration is feature-detected. No compatible browser validation context was available; it is not part of the verified lab acceptance criteria.
 
 ## Files to submit
@@ -173,9 +173,9 @@ The `.github/workflows/ci.yml` workflow runs the public, data-free Python checks
 |---|---|---|
 | Git | Versioned source and local commits | `git log` in this workspace |
 | GitHub | Source branch and review PR | [TriadLens PR #1](https://github.com/aryanvinju/SE_MINPROJ/pull/1) |
-| GitHub Actions | Python/JavaScript checks, image build and main-branch publish | [Successful PR CI run](https://github.com/aryanvinju/SE_MINPROJ/actions/runs/38200322711); inspect latest main run for publication |
+| GitHub Actions | Python/JavaScript checks, image build and main-branch publish | [Successful main run](https://github.com/aryanvinju/SE_MINPROJ/actions/runs/38201577529) |
 | Docker | Reproducible source-only Gunicorn image | Dockerfile and CI image build; mounted-model run pending |
-| Docker Hub | Image registry for `aryanvinju/se_miniproj` | Verify SHA and latest tags after the main-branch run |
+| Docker Hub | Image registry for `aryanvinju/se_miniproj` | SHA and latest tags pushed in the main run; digest `sha256:ecbd5049e833911c3db2b09d0395d207a32797b2ef87b8235e233af3373d0e87` |
 | Kubernetes | Two replicas, Service, health probes and artifact Secret mounts | Manifest validated; live rollout pending |
 
 ## Primary references
@@ -191,3 +191,4 @@ The `.github/workflows/ci.yml` workflow runs the public, data-free Python checks
 ## Educational risk levels
 
 Each model returns Low, Moderate or High **demo risk**, derived from its existing score. These bands do not change the model or its YES/NO prediction. ML/DL use Low below 0.30, Moderate from 0.30 to below 0.70 and High at or above 0.70. QML uses its uncalibrated SVM margin: Low below -0.50, Moderate from -0.50 to below 0.50 and High at or above 0.50. These are arbitrary demonstration thresholds, not medical cutoffs or calibrated cancer probabilities. Low does not rule out disease; categories from different models are not directly comparable. API results include risk.level, risk.basis, risk.thresholds and risk.clinical_risk=false. ST22 and ST23 cover boundary assignments and API consistency.
+
