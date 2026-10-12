@@ -69,7 +69,7 @@ ML and DL: Low below 0.30; Moderate from 0.30 to below 0.70; High at or above 0.
 | ST19 | Create local cluster Secrets, load or pull the image, apply YAML, wait for rollout and port-forward Service to 8080. | Two ready Pods and successful three-model HTTP response through Service. | BLOCKED by missing configured cluster |
 | ST20 | Scale to three replicas, verify readiness, then restore two. | Desired replica counts are achieved. | PENDING ST19 |
 | ST21 | Delete one exact Pod in namespace lung-lab and observe replacement. | Replacement becomes ready; API works after reconnecting port-forward if needed. | PENDING ST19 |
-| ST26 | Configure Docker Hub repository secrets and manually dispatch the workflow from main. | GitHub Actions publishes SHA and latest tags to aryanvinju/se_miniproj; pulled image excludes survey rows and model artifacts. | PENDING Docker Hub token and main-branch workflow |
+| ST26 | After repository secrets are configured, merge the reviewed PR or manually run the workflow on main. | GitHub Actions publishes SHA and latest tags to aryanvinju/se_miniproj; pulled image excludes survey rows and model artifacts. | PENDING main-branch workflow evidence |
 
 Kubernetes YAML parsing and label-selector consistency were checked. They do not establish that a cluster deployment works. Optional WebMCP integration has not been checked in a compatible browser and is outside lab acceptance.
 

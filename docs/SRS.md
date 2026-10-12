@@ -71,7 +71,7 @@ UC-01 load example; UC-02 enter features; UC-03 compare models, including valida
 | FR13 | The container deployment shall run two replicas reachable through a Kubernetes Service. | Pending ST18 and ST19 |
 | FR14 | Training shall persist the models, split IDs, version information and held-out predictions. | ST04, ST10 and ST13 |
 | FR15 | For ALL, the API shall report labels, agreement count, unanimity, a descriptive majority dataset label and review reasons for disagreement or age extrapolation; for one model, comparison shall be null. | ST24 and ST25 |
-| FR16 | An authorized manual GitHub Actions run on main shall publish the source-only image to an existing Docker Hub repository using repository secrets. | Workflow inspection; live ST26 pending Docker Hub account setup |
+| FR16 | A successful main-branch GitHub Actions run shall publish the source-only image to the supplied Docker Hub repository using repository secrets. | Workflow inspection and live ST26 |
 
 ## 5 Nonfunctional requirements
 

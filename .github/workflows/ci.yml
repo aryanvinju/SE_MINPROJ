@@ -32,7 +32,7 @@ jobs:
           docker run --rm --entrypoint sh triadlens:${{ github.sha }} -c \
             'test ! -f /app/models/qml.joblib && test ! -f /app/data/lungcancer.csv && test ! -f /app/reports/metrics.json'
   publish:
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     needs: [test, container]
     runs-on: ubuntu-latest
     steps:

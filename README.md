@@ -107,9 +107,9 @@ Open http://127.0.0.1:5001. The container loads the mounted model files. The bui
 
 ## Docker Hub publication
 
-The GitHub Actions `publish` job targets [aryanvinju/se_miniproj](https://hub.docker.com/repository/docker/aryanvinju/se_miniproj/general) and pushes a **source-only** image. It runs only when manually dispatched on `main`, after the test and container checks pass. Add two GitHub repository Actions secrets: `DOCKERHUB_USERNAME` with value `aryanvinju`, and a Docker Hub access token named `DOCKERHUB_TOKEN`. In GitHub, open **Actions → TriadLens CI → Run workflow** and select `main`. The workflow tags the image with the Git commit SHA and `latest`. Never place the token in a tracked file or a workflow input.
+The GitHub Actions `publish` job targets [aryanvinju/se_miniproj](https://hub.docker.com/repository/docker/aryanvinju/se_miniproj/general) and pushes a **source-only** image after tests pass on a push to `main`. It can also be rerun manually on `main` through **Actions → TriadLens CI → Run workflow**. It uses GitHub repository Actions secrets `DOCKERHUB_USERNAME` (value `aryanvinju`) and `DOCKERHUB_TOKEN` (a Docker Hub access token). The workflow tags the image with the Git commit SHA and `latest`. Never place the token in a tracked file or a workflow input.
 
-The Docker Hub repository has been provided, but its access token has not, so publication has **not** been executed. The published image will still need local model and report artifacts mounted at runtime; it does not contain row-level survey data or encoded training states.
+The Docker Hub repository and GitHub Actions secrets have been supplied. Verify publication in the Actions run and Docker Hub tag list after merging this PR. The published image still needs local model and report artifacts mounted at runtime; it does not contain row-level survey data or encoded training states.
 
 ## Kubernetes with Minikube
 
@@ -150,7 +150,7 @@ Troubleshooting: `ImagePullBackOff` usually means the image is absent from the c
 - **57 automated tests passed locally**, including four data-free public CI checks, model disagreement rules, API predictions on all 55 held-out records, malformed-input handling, missing-model readiness, split integrity, known quantum gate behavior, and kernel properties.
 - A live HTTP request to the local app and a three-model prediction succeeded.
 - JavaScript passed Node's syntax check. Browser interaction, responsive layout and accessibility tests are listed as pending manual checks.
-- GitHub Actions has passed the public checks and built the source-only Docker image. **A mounted-model Docker run, Docker Hub push and live Kubernetes deployment remain unverified:** Docker access was denied, no current Kubernetes context was configured, and a Docker Hub token has not been configured in GitHub Actions.
+- GitHub Actions has passed the public checks and built the source-only Docker image. Check the latest main-branch Actions run for Docker Hub publication. A mounted-model Docker run and live Kubernetes deployment remain unverified: Docker access was denied and no current Kubernetes context was configured.
 - Optional WebMCP registration is feature-detected. No compatible browser validation context was available; it is not part of the verified lab acceptance criteria.
 
 ## Files to submit
@@ -167,15 +167,15 @@ The documents are editable Markdown and can be opened in a text editor or copied
 
 ## Git and GitHub Actions
 
-The `.github/workflows/ci.yml` workflow runs the public, data-free Python checks and a JavaScript syntax check on pushes and pull requests, builds the Docker image, and checks that private artifacts are absent. Its manual `publish` job logs in to Docker Hub using repository secrets and pushes an image only from `main`. The full 57-case local suite requires the private row-level dataset and derived evidence. Git tracks source changes locally; GitHub hosts the branch, pull request and Actions runs. Review a teammate's diff and record the review on GitHub before merge.
+The `.github/workflows/ci.yml` workflow runs the public, data-free Python checks and a JavaScript syntax check on pushes and pull requests, builds the Docker image, and checks that private artifacts are absent. Its `publish` job logs in to Docker Hub using repository secrets and pushes an image after a successful main-branch push or manual main-branch run. The full 57-case local suite requires the private row-level dataset and derived evidence. Git tracks source changes locally; GitHub hosts the branch, pull request and Actions runs. Review a teammate's diff and record the review on GitHub before merge.
 
 | Tool | Project use | Current evidence |
 |---|---|---|
 | Git | Versioned source and local commits | `git log` in this workspace |
 | GitHub | Source branch and review PR | [TriadLens PR #1](https://github.com/aryanvinju/SE_MINPROJ/pull/1) |
-| GitHub Actions | Python/JavaScript checks and image build | [Successful CI run](https://github.com/aryanvinju/SE_MINPROJ/actions/runs/38199333779); Docker Hub job awaits a token and main-branch workflow |
+| GitHub Actions | Python/JavaScript checks, image build and main-branch publish | [Successful PR CI run](https://github.com/aryanvinju/SE_MINPROJ/actions/runs/38200322711); inspect latest main run for publication |
 | Docker | Reproducible source-only Gunicorn image | Dockerfile and CI image build; mounted-model run pending |
-| Docker Hub | Image registry for `aryanvinju/se_miniproj` | Repository supplied; publish run pending |
+| Docker Hub | Image registry for `aryanvinju/se_miniproj` | Verify SHA and latest tags after the main-branch run |
 | Kubernetes | Two replicas, Service, health probes and artifact Secret mounts | Manifest validated; live rollout pending |
 
 ## Primary references
