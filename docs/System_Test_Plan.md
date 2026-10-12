@@ -53,7 +53,7 @@ Final local automated result: **57 passed, zero failures, zero errors** on 12 Oc
 
 ### 5.1 Security validation
 
-ST05–ST07 reject malformed fields, unexpected JSON keys, wrong content type and oversized bodies. ST14 checks no-store responses and the same-origin Content Security Policy. The Dockerfile and Kubernetes manifest are inspected for a non-root user, dropped capabilities and resource limits; live container and cluster validation remain ST18–ST19. These cases trace to SO-01–SO-03 and SR-01–SR-04 in the SRS.
+ST05–ST07 reject malformed fields, unexpected JSON keys, wrong content type and oversized bodies. ST14 checks no-store responses and the same-origin Content Security Policy. The Dockerfile and Kubernetes manifest are inspected for a non-root user, dropped capabilities and resource limits; live container and cluster validation passed ST18–ST19. These cases trace to SO-01–SO-03 and SR-01–SR-04 in the SRS.
 
 ## Risk band expectations
 
@@ -83,7 +83,5 @@ Preserve test_results.xml, metrics.json, splits.json, test_predictions.csv and h
 
 Local automated acceptance requires every automated test and a real HTTP smoke request to succeed. Full lab acceptance also requires ST16 through ST21, ST26, a remote GitHub Actions run, and instructor review. Current local software checks, Docker Hub publication, Docker/Kubernetes operational cases and ST16 browser interaction pass. The ST17 200 percent zoom check and instructor review remain open.
 
-Traceability: FR01–FR02 → ST01/ST16; FR03–FR04 → ST05–ST07/ST09; FR05–FR07 → ST03–ST04/ST16; FR08 → ST13; FR09–FR10 → ST10; FR11–FR12 → ST02/ST07–ST08; FR13 → ST18–ST21; FR14 → ST04/ST10/ST13; FR15 → ST24–ST25; FR16 → ST26. NFR01–NFR08 map to ST04–ST21 as listed above; NFR09 requires a successful remote CI run; NFR10 maps to ST18–ST19 and ST26.
-
-For a failure, record case ID, environment, input, expected/actual result, reproduction steps, severity and evidence. Fix the implementation and rerun relevant checks. Never change expected labels to hide a failure or tune models on the held-out test partition.
+Traceability: FR/NFR links appear in the SRS and test tables. On failure, log evidence, fix and rerun; never tune on held-out data.
 

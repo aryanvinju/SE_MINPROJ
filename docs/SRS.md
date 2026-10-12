@@ -10,9 +10,9 @@ Class, section and instructor: complete on the private submission copy
 
 **Problem statement.** Small, imbalanced health-survey datasets can produce deceptively similar accuracy scores from very different models. A single predicted label hides disagreement, class imbalance, and extrapolation beyond the training data. TriadLens is a full-stack educational audit portal that trains classical ML, deep learning and simulated quantum ML on one reproducible survey split, then shows model disagreement, a descriptive majority dataset label, the majority-class baseline and an age-range warning for each comparison. It is intended to help students inspect model behavior, not to diagnose disease.
 
-The application classifies records from the supplied lungcancer.csv dataset using machine learning, deep learning and simulated quantum machine learning. A student enters the 15 survey features, selects a model or all three, and reviews predicted YES/NO dataset labels, an agreement audit and held-out evaluation metrics. The project includes training code, saved artifacts, a Python backend, a browser interface, Git/GitHub collaboration, GitHub Actions CI, Docker, optional Docker Hub publication and Kubernetes deployment configuration.
+The application classifies records from the supplied lungcancer.csv dataset using machine learning, deep learning and simulated quantum machine learning. A student enters the 15 survey features, selects a model or all three, and reviews predicted YES/NO dataset labels, an agreement audit and held-out evaluation metrics. The project includes training code, saved artifacts, a Python backend, a browser interface, Git/GitHub collaboration, GitHub Actions CI, Docker, Docker Hub publication and Kubernetes deployment configuration.
 
-This document describes the implemented local application and the intended container deployment. Local model/API checks have passed. Live Docker and Kubernetes acceptance is pending because the execution environment denied Docker access and has no current Kubernetes context. The system is a classroom demonstration, not a clinical decision support system.
+This document describes the implemented local application and the local container deployment. Model/API checks, a mounted-model Docker run and a two-replica Docker Desktop Kubernetes deployment have passed. The system is a classroom demonstration, not a clinical decision support system.
 
 ## 2 Stakeholders and operating environment
 
@@ -68,7 +68,7 @@ UC-01 load example; UC-02 enter features; UC-03 compare models, including valida
 | FR10 | Learned preprocessing shall be fitted only on training data and reused at prediction time. | ST04 and ST10 |
 | FR11 | The application shall return appropriate JSON errors for invalid transport and unavailable models. | ST07 and ST08 |
 | FR12 | The service shall expose separate liveness and readiness endpoints. | ST02 and ST08 |
-| FR13 | The container deployment shall run two replicas reachable through a Kubernetes Service. | Pending ST18 and ST19 |
+| FR13 | The container deployment shall run two replicas reachable through a Kubernetes Service. | Passed ST18 and ST19 |
 | FR14 | Training shall persist the models, split IDs, version information and held-out predictions. | ST04, ST10 and ST13 |
 | FR15 | For ALL, the API shall report labels, agreement count, unanimity, a descriptive majority dataset label and review reasons for disagreement or age extrapolation; for one model, comparison shall be null. | ST24 and ST25 |
 | FR16 | A successful main-branch GitHub Actions run shall publish the source-only image to the supplied Docker Hub repository using repository secrets. | Workflow inspection and live ST26 |
@@ -83,10 +83,10 @@ UC-01 load example; UC-02 enter features; UC-03 compare models, including valida
 | NFR04 | The interface shall remain usable at 375 px width, with keyboard input and visible focus. | ST17 keyboard and 375 px checks passed; 200 percent zoom remains open |
 | NFR05 | Repeated identical inputs shall produce the same label and score within the running process. | ST15 |
 | NFR06 | A missing model artifact shall make readiness fail while liveness remains available. | ST08 |
-| NFR07 | Container configuration shall run as a non-root user with bounded resources. | Manifest inspection; live ST18 pending |
+| NFR07 | Container configuration shall run as a non-root user with bounded resources. | Manifest inspection and live ST18–ST19 passed |
 | NFR08 | All local automated acceptance checks shall pass before submission. | 57 tests pass locally; JUnit evidence in the private submission bundle |
 | NFR09 | GitHub Actions shall run Python and JavaScript checks on pushes and pull requests, then build the Docker image if tests pass. | GitHub Actions run history and current branch check |
-| NFR10 | Public Docker images shall exclude the survey CSV, model artifacts and detailed reports; Kubernetes shall mount required artifacts separately. | Docker context inspection, CI image check and pending live ST18–ST19 |
+| NFR10 | Public Docker images shall exclude the survey CSV, model artifacts and detailed reports; Kubernetes shall mount required artifacts separately. | Docker context inspection, CI image check and live ST18–ST19 passed |
 
 There is no medically meaningful accuracy acceptance threshold. The project reports measured results transparently and includes the majority-class baseline. No sustained load, multi-user capacity or production availability guarantee has been established.
 
@@ -94,7 +94,7 @@ There is no medically meaningful accuracy acceptance threshold. The project repo
 
 **SO-01 Integrity:** malformed survey values must not reach saved models or change artifacts. **SO-02 Privacy:** submissions must not be retained or cached. **SO-03 Isolation:** the container must use a non-root identity and bounded resources.
 
-**SR-01:** `/api/predict` shall accept only the exact JSON schema and validated feature codes (ST05–ST07). **SR-02:** bodies above 16 KiB shall be rejected (ST07). **SR-03:** responses shall carry `Cache-Control: no-store`, `X-Content-Type-Options: nosniff` and a same-origin Content Security Policy (ST14). **SR-04:** the container shall run non-root without added Linux capabilities (manifest inspection and pending ST18–ST19).
+**SR-01:** `/api/predict` shall accept only the exact JSON schema and validated feature codes (ST05–ST07). **SR-02:** bodies above 16 KiB shall be rejected (ST07). **SR-03:** responses shall carry `Cache-Control: no-store`, `X-Content-Type-Options: nosniff` and a same-origin Content Security Policy (ST14). **SR-04:** the container shall run non-root without added Linux capabilities (manifest inspection and live ST18–ST19).
 
 ## 6 Architecture and interfaces
 
@@ -144,13 +144,13 @@ The test set contains seven NO and 48 YES labels. ML and DL achieved 92.73% accu
 
 The image shall load pretrained artifacts under Gunicorn on port 5000. The namespace is lung-lab; the Deployment and Service share app=lung-lab labels. Each Pod requests 100 millicores and 256 MiB and has limits of one CPU and 1 GiB. A writable temporary volume supports a read-only root filesystem. The Service exposes port 80 to the container's named http port. The README provides Minikube image-loading, rollout and port-forward commands.
 
-Deployment acceptance requires a successful image build, successful rollout, two ready Pods, a reachable readiness endpoint and a successful three-model request through the Service. Those checks have not yet run successfully in this environment. YAML parsing is not equivalent to cluster acceptance.
+Deployment acceptance requires a successful image build, successful rollout, two ready Pods, a reachable readiness endpoint and a successful three-model request through the Service. These checks passed on Docker Desktop Kubernetes on 12 October 2026; the [DevOps verification log](DevOps_Verification.md) records the observations. This is a local lab cluster, not a public production deployment.
 
 ## 9 Limitations and acceptance status
 
 The current implementation is suitable for a lab demonstration with synthetic or supplied example records. It lacks clinical validation, verified dataset provenance, a supplied codebook, authentication, persistence, hardware quantum execution, and production deployment testing. Those omissions are explicit scope boundaries rather than implemented capabilities.
 
-Local automated acceptance is complete: 57 checks pass, with live HTTP smoke evidence. Manual browser checks and Docker/Kubernetes checks remain pending in the System Test Plan. The instructor may impose a report template or require Qiskit/PennyLane; these requirements were not supplied and would need an explicit revision to this specification.
+Local automated acceptance is complete: 57 checks pass, with live HTTP smoke evidence. Manual browser ST16 and Docker/Kubernetes ST18–ST21 passed. The 200 percent zoom portion of ST17 and instructor review remain open in the System Test Plan. The instructor may impose a report template or require Qiskit/PennyLane; these requirements were not supplied and would need an explicit revision to this specification.
 
 ## 10 References
 
