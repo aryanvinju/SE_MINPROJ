@@ -1,0 +1,28 @@
+name: TriadLens CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Install Python dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Verify JavaScript syntax
+        run: node --check static/app.js
+      - name: Run public data-free checks
+        run: python -m pytest -q tests/test_public.py
+  container:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build application image
+        run: docker build -t triadlens:${{ github.sha }} .
