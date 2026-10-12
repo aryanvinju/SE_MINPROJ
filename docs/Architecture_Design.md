@@ -48,7 +48,7 @@ flowchart LR
   Secrets --> Pod2
 ```
 
-The Dockerfile uses a non-root user, Gunicorn, and port 5000. The Docker context excludes the survey CSV, model artifacts and detailed reports. GitHub Actions builds that source-only image on pushes and pull requests; [main run 38201577529](https://github.com/aryanvinju/SE_MINPROJ/actions/runs/38201577529) published its SHA and latest tags to Docker Hub. The Kubernetes Deployment requests CPU/memory, sets limits, drops Linux capabilities, uses a read-only root filesystem and mounts a small writable `/tmp` plus read-only model/report Secrets. Startup/readiness probes call `/health/ready`; liveness calls `/health/live`. Live deployment still requires cluster evidence.
+The Dockerfile uses a non-root user, Gunicorn, and port 5000. The Docker context excludes the survey CSV, model artifacts and detailed reports. GitHub Actions builds that source-only image on pushes and pull requests; [main run 38201577529](https://github.com/aryanvinju/SE_MINPROJ/actions/runs/38201577529) published its SHA and latest tags to Docker Hub. The Kubernetes Deployment requests CPU/memory, sets limits, drops Linux capabilities, uses a read-only root filesystem and mounts a small writable `/tmp` plus read-only model/report Secrets. Startup/readiness probes call `/health/ready`; liveness calls `/health/live`. A Docker Desktop cluster rollout, Service request, scaling and Pod replacement passed on 12 October 2026.
 
 ### 2.4 Requirement traceability
 
@@ -62,7 +62,7 @@ The Dockerfile uses a non-root user, Gunicorn, and port 5000. The Docker context
 | FR12–FR13 | Health endpoints, Docker, Kubernetes | ST02, ST08, ST18–ST21 |
 | FR15 | Disagreement audit and browser panel | ST24–ST25 |
 | NFR01–NFR08, SR-01–SR-04 | Tests, security headers, data minimization, non-root deployment | ST04–ST21 |
-| FR16, NFR09–NFR10 | GitHub Actions workflow, Docker Hub job, artifact exclusion and Secret mounts | Successful main publish run; ST26 local pull pending |
+| FR16, NFR09–NFR10 | GitHub Actions workflow, Docker Hub job, artifact exclusion and Secret mounts | Successful main publish run and local image pull; ST18–ST21/ST26 passed |
 
 ### 2.5 Security architecture
 
@@ -96,7 +96,7 @@ sequenceDiagram
     API->>API: Count agreement; flag disagreement/extrapolation
     API-->>UI: Results, comparison, warnings
   end
-  UI-->>Student: Show model cards and audit panel
+  UI-->>Student: Show model results and agreement audit
 ```
 
 ### 3.3 UML sequence diagram: train and publish artifacts

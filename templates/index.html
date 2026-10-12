@@ -1,41 +1,78 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>TriadLens | ML, DL and QML disagreement audit</title>
-  <meta name="description" content="Compare machine learning, deep learning and simulated quantum machine learning on a lung cancer survey dataset.">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TriadLens — model comparison</title>
+  <meta name="description" content="Compare machine learning, deep learning and simulated quantum machine learning on a survey dataset.">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <script src="{{ url_for('static', filename='app.js') }}" defer></script>
 </head>
 <body>
-  <header><a class="brand" href="/">TRIAD<span>/</span>LENS</a><span class="header-note">ML · DL · QML</span><span id="health" class="health">Checking models…</span></header>
   <main>
-    <div class="intro"><p class="eyebrow">MODEL DISAGREEMENT LAB</p><h1>One dataset.<br>Three approaches.</h1><p>Compare ML, DL and quantum-kernel models, then inspect when their labels disagree.</p></div>
-    <p class="notice">For learning only. These outputs are not a diagnosis or a medical risk assessment.</p>
+    <header>
+      <div>
+        <h1>TriadLens</h1>
+        <p>Compare three models on one survey record.</p>
+      </div>
+      <p id="health" role="status">Checking models…</p>
+    </header>
+
+    <p class="notice">Educational dataset classification only. Results are not a diagnosis or a medical risk assessment.</p>
+
     <div class="workspace">
-      <section class="input-panel" aria-labelledby="input-title">
-        <div class="section-top"><h2 id="input-title">Survey inputs</h2><button id="example" class="text-button" type="button">Load dataset example</button></div>
-        <p class="muted">Binary fields use the supplied CSV codes. Their meanings were not provided, so the form preserves codes 1 and 2.</p>
+      <section aria-labelledby="input-title">
+        <div class="section-top">
+          <h2 id="input-title">Survey inputs</h2>
+          <button id="example" type="button">Load example</button>
+        </div>
+        <p class="muted">Binary fields use codes 1 and 2 from the supplied CSV. Their meanings were not provided.</p>
         <form id="prediction-form">
           <div class="input-grid">
             <label>Gender code<select name="GENDER" required><option value="">Select</option><option value="F">F</option><option value="M">M</option></select></label>
-            <label>Age<input type="number" name="AGE" min="0" max="120" step="1" placeholder="e.g. 60" required></label>
+            <label>Age<input type="number" name="AGE" min="0" max="120" step="1" placeholder="60" required></label>
             {% for feature in binary_features %}
-            <label>{{ feature.replace('_', ' ').title() }}<select name="{{ feature }}" required><option value="">Select code</option><option value="1">Code 1</option><option value="2">Code 2</option></select></label>
+            <label>{{ feature.replace('_', ' ').title() }}<select name="{{ feature }}" required><option value="">Select code</option><option value="1">1</option><option value="2">2</option></select></label>
             {% endfor %}
           </div>
-          <div class="model-choice"><label>Run model<select name="model"><option value="ALL">Compare all three</option><option value="ML">ML — Logistic regression</option><option value="DL">DL — Neural network</option><option value="QML">QML — Quantum kernel SVM</option></select></label><button id="submit" type="submit">Run comparison <span aria-hidden="true">↗</span></button></div>
+          <div class="model-choice">
+            <label>Model<select name="model"><option value="ALL">All three</option><option value="ML">ML — Logistic regression</option><option value="DL">DL — Neural network</option><option value="QML">QML — Quantum kernel SVM</option></select></label>
+            <button id="submit" type="submit">Run comparison</button>
+          </div>
         </form>
-        <p id="error" class="error" role="alert" hidden></p>
+        <p id="error" role="alert" hidden></p>
       </section>
-      <aside class="output-panel" aria-labelledby="results-title">
-        <p class="eyebrow">MODEL OUTPUT</p><h2 id="results-title">Prediction results</h2><p class="result-detail">Low, Moderate or High demo risk is shown for each model.</p>
-        <div id="results" aria-live="polite"><p class="empty">Complete the survey or load an example, then run a comparison.</p></div>
-        <div id="audit" class="audit" hidden aria-live="polite"></div>
-        <p id="warning" class="warning" hidden></p>
-        <div class="risk-guide"><h3>How levels are assigned</h3><p>ML / DL score: Low below 0.30, Moderate from 0.30 to below 0.70, High from 0.70.</p><p>QML margin: Low below -0.50, Moderate from -0.50 to below 0.50, High from 0.50.</p><p>These are chosen demonstration bands, not medically validated cutoffs. Levels across models are not directly comparable.</p></div><div class="method-note"><h3>What is QML here?</h3><p>A four-qubit circuit maps compressed inputs into quantum states. A classical SVM learns from their similarities. The circuit runs on a CPU simulator.</p><p>ML and DL use all 15 features. QML uses four PCA components. No quantum speed advantage is claimed.</p></div>
-      </aside>
+
+      <section aria-labelledby="results-title">
+        <h2 id="results-title">Results</h2>
+        <div id="results" aria-live="polite"><p class="muted">Enter a record or load the example, then run a model.</p></div>
+        <div id="audit" hidden aria-live="polite"></div>
+        <p id="warning" hidden></p>
+        <details>
+          <summary>How scores and levels work</summary>
+          <p>ML and DL use class YES model scores. Low is below 0.30, Moderate is 0.30 to below 0.70, and High starts at 0.70.</p>
+          <p>QML uses an SVM decision margin, not a probability. Low is below -0.50, Moderate is -0.50 to below 0.50, and High starts at 0.50.</p>
+          <p>These bands are illustrative and are not medically validated. Levels across models are not directly comparable.</p>
+        </details>
+        <details>
+          <summary>About the quantum model</summary>
+          <p>A four-qubit circuit maps four PCA components into quantum states on a CPU simulator. A classical SVM learns from their similarities. ML and DL use all 15 features. No quantum speed advantage is claimed.</p>
+        </details>
+      </section>
     </div>
-    <section class="evaluation" aria-labelledby="evaluation-title"><div class="section-top"><div><p class="eyebrow">HELD-OUT EVALUATION</p><h2 id="evaluation-title">Compare test performance</h2></div><span id="split-note" class="muted">Loading evaluation…</span></div><div class="table-wrap"><table><thead><tr><th scope="col">Model</th><th scope="col">Accuracy</th><th scope="col">Balanced accuracy</th><th scope="col">Precision</th><th scope="col">Recall</th><th scope="col">F1</th><th scope="col">ROC AUC</th></tr></thead><tbody id="metrics-body"></tbody></table></div><p id="baseline" class="muted"></p><p class="muted">Positive class: YES. One small, imbalanced test split; these results do not establish clinical usefulness.</p></section>
-  </main><footer>TriadLens educational model audit <span>Python · Flask · PyTorch · Quantum simulation · Kubernetes</span></footer>
-</body></html>
+
+    <section class="evaluation" aria-labelledby="evaluation-title">
+      <h2 id="evaluation-title">Held-out test results</h2>
+      <p id="split-note" class="muted">Loading evaluation…</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Model</th><th scope="col">Accuracy</th><th scope="col">Balanced accuracy</th><th scope="col">Precision</th><th scope="col">Recall</th><th scope="col">F1</th><th scope="col">ROC AUC</th></tr></thead>
+        <tbody id="metrics-body"></tbody>
+      </table></div>
+      <p id="baseline" class="muted"></p>
+      <p class="muted">Positive class: YES. This small, imbalanced test split does not establish clinical usefulness.</p>
+    </section>
+
+    <footer>TriadLens · ML, DL and simulated QML model audit</footer>
+  </main>
+</body>
+</html>

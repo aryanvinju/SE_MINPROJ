@@ -63,15 +63,15 @@ ML and DL: Low below 0.30; Moderate from 0.30 to below 0.70; High at or above 0.
 
 | ID | Procedure | Expected outcome | Status |
 |---|---|---|---|
-| ST16 | In the browser, load an example, run ALL and each model, then submit a missing field. | Correct result cards and risk badges appear; required-input error is visible. | PENDING manual interaction check |
-| ST17 | Use keyboard navigation, 375 px viewport and 200 percent zoom. | Focus and controls remain visible and usable. | PENDING manual check |
-| ST18 | Build the source-only image, mount local model/report files and run it on host port 5001. | Container becomes ready and all three models respond; image itself contains no private artifacts. | BLOCKED by Docker access in execution environment |
-| ST19 | Create local cluster Secrets, load or pull the image, apply YAML, wait for rollout and port-forward Service to 8080. | Two ready Pods and successful three-model HTTP response through Service. | BLOCKED by missing configured cluster |
-| ST20 | Scale to three replicas, verify readiness, then restore two. | Desired replica counts are achieved. | PENDING ST19 |
-| ST21 | Delete one exact Pod in namespace lung-lab and observe replacement. | Replacement becomes ready; API works after reconnecting port-forward if needed. | PENDING ST19 |
-| ST26 | After repository secrets are configured, merge the reviewed PR or manually run the workflow on main. | GitHub Actions publishes SHA and latest tags to aryanvinju/se_miniproj; pulled image excludes survey rows and model artifacts. | PARTIAL PASS: [main run 38201577529](https://github.com/aryanvinju/SE_MINPROJ/actions/runs/38201577529) pushed both tags, digest `sha256:ecbd5049e833911c3db2b09d0395d207a32797b2ef87b8235e233af3373d0e87`; local pull and image inspection pending Docker daemon access |
+| ST16 | In the browser, load an example, run ALL and each model, then submit a missing field. | Correct result cards and risk badges appear; required-input error is visible. | PASS: ALL, ML, DL and QML views showed the expected cards; missing Gender code showed a required-input prompt |
+| ST17 | Use keyboard navigation, 375 px viewport and 200 percent zoom. | Focus and controls remain visible and usable. | PARTIAL PASS: Tab moved visible focus to Age; at 375 px there was no horizontal overflow and form/results remained usable; 200 percent zoom was not independently verified |
+| ST18 | Pull the source-only image, mount local model/report files and run it on host port 5001. | Container becomes ready and all three models respond; image itself contains no private artifacts. | PASS: pulled SHA tag; unmounted image has no survey CSV or saved model files; mounted container returned ready and ML/DL/QML results |
+| ST19 | Create local cluster Secrets, pull the image, apply YAML, wait for rollout and port-forward Service to 8080. | Two ready Pods and successful three-model HTTP response through Service. | PASS: Docker Desktop context, two ready Pods, ready endpoint and ML/DL/QML response through Service |
+| ST20 | Scale to three replicas, verify readiness, then restore two. | Desired replica counts are achieved. | PASS: 3/3 ready, then 2/2 ready |
+| ST21 | Delete one exact Pod in namespace lung-lab and observe replacement. | Replacement becomes ready; API works after reconnecting port-forward if needed. | PASS: deleted `lung-lab-855cc58c-hhtw2`; replacement `lung-lab-855cc58c-btg9m` became ready; API worked after reconnecting port-forward |
+| ST26 | After repository secrets are configured, merge the reviewed PR or manually run the workflow on main. | GitHub Actions publishes SHA and latest tags to aryanvinju/se_miniproj; pulled image excludes survey rows and model artifacts. | PASS: [main run 38201577529](https://github.com/aryanvinju/SE_MINPROJ/actions/runs/38201577529) pushed both tags; pulled digest `sha256:ecbd5049e833911c3db2b09d0395d207a32797b2ef87b8235e233af3373d0e87`; image inspection confirmed exclusions |
 
-Kubernetes YAML parsing and label-selector consistency were checked. They do not establish that a cluster deployment works. Optional WebMCP integration has not been checked in a compatible browser and is outside lab acceptance.
+Kubernetes YAML parsing and label-selector consistency were checked, followed by live Docker Desktop cluster deployment. Optional WebMCP integration has not been checked in a compatible browser and is outside lab acceptance.
 
 ## 7. Execution steps
 
@@ -81,7 +81,7 @@ From the project folder, run `python train.py`, then `python -m pytest -q --juni
 
 Preserve test_results.xml, metrics.json, splits.json, test_predictions.csv and http_smoke_test.json. Capture actual browser results and real kubectl output when manual/operational checks are executed. Do not fabricate screenshots or mark blocked tests passed.
 
-Local automated acceptance requires every automated test and a real HTTP smoke request to succeed. Full lab acceptance also requires ST16 through ST21, ST26, a remote GitHub Actions run, and instructor review. Current local software checks and the remote Docker Hub publish pass; local image inspection, Docker/Kubernetes and browser interaction acceptance remain incomplete.
+Local automated acceptance requires every automated test and a real HTTP smoke request to succeed. Full lab acceptance also requires ST16 through ST21, ST26, a remote GitHub Actions run, and instructor review. Current local software checks, Docker Hub publication, Docker/Kubernetes operational cases and ST16 browser interaction pass. The ST17 200 percent zoom check and instructor review remain open.
 
 Traceability: FR01–FR02 → ST01/ST16; FR03–FR04 → ST05–ST07/ST09; FR05–FR07 → ST03–ST04/ST16; FR08 → ST13; FR09–FR10 → ST10; FR11–FR12 → ST02/ST07–ST08; FR13 → ST18–ST21; FR14 → ST04/ST10/ST13; FR15 → ST24–ST25; FR16 → ST26. NFR01–NFR08 map to ST04–ST21 as listed above; NFR09 requires a successful remote CI run; NFR10 maps to ST18–ST19 and ST26.
 

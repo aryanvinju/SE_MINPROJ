@@ -28,7 +28,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: web
-          image: lung-cancer-lab:1.0
+          image: aryanvinju/se_miniproj:0cf74d38d7729b70ff8a66c9588400286f6d0aea
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5000
